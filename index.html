@@ -5,91 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/media/icon_64.png" />
     <meta name="description" content="Ile do papieżowej? Specjalny zegar jp2" />
     <meta name="keywords" content="ile, do, papieżowej, papiezowej, jp2, jan, paweł, pawel, drugi, jp, odliczanie, zegar, 2137, 21, 37, 21:37">
     <meta name="author" content="Mathias">
+    <title>Ile do papieżowej?</title>
 
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="/icon_64.png" />
-    <title>Ile do papieżowej?</title>
+    <script src="/main.js"></script>
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-150749288-2"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
         gtag('js', new Date());
         gtag('config', 'UA-150749288-2');
     </script>
+
     <!-- Google AdSense -->
-    <script data-ad-client="ca-pub-8038987050112567" async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-
-    <script>
-        window.onload = function () {
-            display = document.querySelector('#display')
-            clock = document.querySelector('#clock')
-            barka = document.querySelector('#barka')
-            var start = new Date,
-                isPapiezowa = false
-
-            start.setHours(21, 37, 0)
-
-            function pad(num) {
-                return ("0" + parseInt(num)).substr(-2);
-            }
-
-            function papiezowa() {
-                if(isPapiezowa) return
-                isPapiezowa = true
-                barka.play()
-                document.body.classList.add("rainbow");
-            }
-
-            function popapiezowej() {
-                if(!isPapiezowa) return
-                isPapiezowa = false
-                barka.pause()
-                document.body.classList.remove("rainbow");
-            }
-
-            setInterval(() => {
-                var now = new Date;
-                if (now > start) { // too late, go to tomorrow
-                    start.setDate(start.getDate() + 1)
-                }
-                var remain = ((start - now) / 1000)
-                var hh = pad((remain / 60 / 60) % 60)
-                var mm = pad((remain / 60) % 60)
-                var ss = pad(remain % 60)
-                
-                display.textContent =
-                    hh + ":" + mm + ":" + ss;
-
-                clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`
-
-                // 0
-                // 86399.899
-                // 86400
-                // 86340
-                if(remain > 86340) papiezowa()
-                else popapiezowej()
-
-                // if ((hh == '23') && (mm == '59')) papiezowa()
-                // if ((hh == '23') && (mm == '58')) popapiezowej()
-
-            }, 100);
-        }
-
-    </script>
+    <script data-ad-client="ca-pub-8038987050112567" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 
 </head>
 
 <body>
-    <audio id="barka" src="barka.mp3"></audio>
-    <div id="clock">--:--</div>
-    <div id="display">--:--:--</div>
-
-
+    <!-- <embed height="0" width="0" src="http://youtube.googleapis.com/v/2yusdx60_aw?autoplay=1&loop=1" /> -->
+    <!-- <iframe width="100" height="100" src="https://www.youtube.com/embed/2yusdx60_aw?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+    <audio controls id="barka" src="/media/barka.mp3"></audio>
+    <span id="points"></span>
+    <img src="media/icon_256.png" alt="papież" id="papiez">
+    <img src="media/cursor1.png" alt="papież" id="minipapiez">
+    <div id="clocks">
+        <div id="clock">--:--</div>
+        <div id="display">--:--:--</div>
+    </div>
+    <div id="drawer">
+        <a href="https://github.com/Maathias/iledopapiezowej">github.com/Maathias/iledopapiezowej</a>
+    </div>
 </body>
 
 </html>
