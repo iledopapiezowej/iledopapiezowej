@@ -1,8 +1,18 @@
+const VERSION = 'v1.1'
+
 var start = new Date,
     isPapiezowa = false,
-    punkty = 0
+    isDuzy = false,
+    health = 0
 
-start.setHours(14, 36, 0)
+start.setHours(21, 37, 0)
+
+var devtools = function() {};
+devtools.toString = function() {
+    this.opened = true;
+}
+
+console.log('%c', devtools);
 
 function pad(num) {
     return ("0" + parseInt(num)).substr(-2);
@@ -38,20 +48,38 @@ function popup() {
     var lr = (rand(-1, 1) || 1),
         side = lr == 1 ? 'left' : 'right'
 
-    minipapiez.style.transitionProperty = ''
-    minipapiez.style.transform = `scale(${lr}, 1)`
-    minipapiez.style.left = ''
-    minipapiez.style.right = ''
-    minipapiez.style[side] = '-5vh'
-    minipapiez.style.transitionProperty = side
-    minipapiez.style[side] = '3vh'
-    minipapiez.addEventListener('transitionend', function() {
-        minipapiez.style[side] = '-5vh'
+    minipapiez.style.left = `${rand(5, 95)}vw`
+    minipapiez.style.top = `${rand(5, 95)}vh`
+    minipapiez.style.transform = `scale(${rand(-1, 1) || 1}, ${rand(-1, 1) || 1})`
+    minipapiez.style.opacity = `1`
+    var hide = setTimeout(() => { minipapiez.style.opacity = `0` }, 2000)
+    console.log('popup')
+
+    minipapiez.addEventListener('click', function() {
+        if (minipapiez.style.opacity < .8) return
+        clearTimeout(hide)
+        startClicker()
     }, false)
 }
 
-function clicker() {
+function startClicker() {
+    isDuzy = true
+    minipapiez.style.opacity = `0`
+    papiez.style.top = '35vh'
+    bar.style.top = '5vh'
+}
 
+function onClicker() {
+    health--
+    if (health <= 0) stopClicker()
+    progress.style.width = `${health}%`
+}
+
+function stopClicker() {
+    isDuzy = false
+        // minipapiez.style.opacity = `0`
+    papiez.style.top = '100vh'
+    bar.style.top = '-5vh'
 }
 
 window.onload = function() {
@@ -61,11 +89,18 @@ window.onload = function() {
     points = document.querySelector('#points')
     papiez = document.querySelector('#papiez')
     minipapiez = document.querySelector('#minipapiez')
+    bar = document.querySelector('#progressbar')
+    progress = document.querySelector('#progressbar>div')
+    ver = document.querySelector('#ver')
 
-    papiez.onmousedown = function() {
-        punkty++
-        points.textContent = punkty
-    }
+    papiez.onmousedown = onClicker
+
+    setInterval(() => {
+        if (isDuzy) return
+        var r = rand(0, 10)
+        if (r || (health <= 0)) return
+        popup()
+    }, 2137)
 
     setInterval(() => {
         var now = new Date
@@ -83,4 +118,8 @@ window.onload = function() {
         else popapiezowej()
 
     }, 100);
+
+    if (VERSION.endsWith('dev')) ver.classList.add('dev')
+    else ver.classList.add('stable')
+    ver.textContent = VERSION
 }

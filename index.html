@@ -11,6 +11,12 @@
     <meta name="author" content="Mathias">
     <title>Ile do papieżowej?</title>
 
+    <meta property="og:title" content="Ile do papieżowej?" />
+    <meta property="og:description" content="Ile do papieżowej? Specjalny zegar jp2" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://iledopapiezowej.pl/" />
+    <meta property="og:image" content="https://iledopapiezowej.pl/media/thumbnail.png" />
+
     <link rel="stylesheet" href="style.css">
     <script src="/main.js"></script>
 
@@ -36,14 +42,17 @@
     <!-- <iframe width="100" height="100" src="https://www.youtube.com/embed/2yusdx60_aw?autoplay=1" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
     <audio controls id="barka" src="/media/barka.mp3"></audio>
     <span id="points"></span>
-    <img src="media/icon_256.png" alt="papież" id="papiez">
+    <div id="progressbar">
+        <div></div>
+    </div>
+    <img src="media/icon_256.png" alt="papież" id="papiez" class="spin">
     <img src="media/cursor1.png" alt="papież" id="minipapiez">
     <div id="clocks">
         <div id="clock">--:--</div>
         <div id="display">--:--:--</div>
     </div>
     <div id="drawer">
-        <a href="https://github.com/Maathias/iledopapiezowej">github.com/Maathias/iledopapiezowej</a>
+        <a href="https://github.com/Maathias/iledopapiezowej">github.com/Maathias/iledopapiezowej</a> <span id='ver'></span>
     </div>
 </body>
 
