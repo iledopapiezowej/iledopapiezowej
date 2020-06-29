@@ -45,6 +45,15 @@ body {
     }
 }
 
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 #clocks {
     height: 100vh;
 }
@@ -62,12 +71,11 @@ body {
 #papiez {
     position: fixed;
     height: 30vh;
-    top: 35vh;
+    top: 100vh;
     margin: auto;
     left: 0;
     right: 0;
-    transition: ease-out 0.05s;
-    display: none;
+    transition: ease-out 0.3s;
 }
 
 #papiez:active {
@@ -86,16 +94,10 @@ body {
 
 #minipapiez {
     position: fixed;
-    transform: scale(-1, 1);
     width: 5vh;
     height: 5vh;
-    right: 0vh;
-    transition: ease-in 0.5s;
-    display: none;
-}
-
-#show {
-    display: initial;
+    transition: opacity ease-out .1s;
+    opacity: 0;
 }
 
 #barka {
@@ -110,10 +112,10 @@ body {
 
 #drawer {
     width: 100vw;
-    height: 12vh;
+    height: 1em;
     background: #f6c8a2;
-    padding: 5%;
-    box-sizing: border-box;
+    padding: .7rem 0px;
+    /* /* box-sizing: border-box; */
 }
 
 #drawer:active {
@@ -128,4 +130,40 @@ a:visited {
 
 a:hover {
     text-decoration: underline;
+}
+
+#progressbar {
+    background-color: #ffffff55;
+    /* border-radius: 13px; */
+    /* (height of inner div) / 2 + padding */
+    padding: 3px;
+    position: fixed;
+    width: 75vw;
+    top: -5vh;
+    left: 0;
+    right: 0;
+    margin: auto;
+    transition: .5s;
+}
+
+#progressbar>div {
+    background-color: #ff000066;
+    width: 100%;
+    /* Adjust with JavaScript */
+    height: 20px;
+    /* border-radius: 10px; */
+}
+
+#ver {
+    padding: 4px 5px;
+    border-radius: 4px;
+}
+
+#ver.dev {
+    background-color: #af3517;
+}
+
+#ver.stable {
+    background-color: #f1e7e7;
+    color: #1b0c0c;
 }
