@@ -1,4 +1,4 @@
-const VERSION = 'v1.1'
+const VERSION = 'v1.11'
 
 var start = new Date,
     isPapiezowa = false,
