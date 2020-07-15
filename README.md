@@ -3,4 +3,4 @@ Prosty licznik do papieżowej
 ## 21:37
 ![papiesz](media/icon_256.png)
 ## Wersja
-v1.1
+v1.12

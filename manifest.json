@@ -1,22 +1,24 @@
 {
+    "version": "1.2",
     "short_name": "Ile do 21:37",
     "name": "Ile do papieżowej?",
     "description": "Odliczanie do papieżowej",
-    "icons": [
-      {
-        "src": "/media/icon_192.png",
-        "type": "image/png",
-        "sizes": "192x192"
-      },
-      {
-        "src": "/media/icon_256.png",
-        "type": "image/png",
-        "sizes": "256x256"
-      }
+    "icons": [{
+            "src": "/media/icon_192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "/media/icon_256.png",
+            "type": "image/png",
+            "sizes": "256x256"
+        }
     ],
     "start_url": "/",
-    "background_color": "#fbe5d3",
-    "display": "standalone",
     "scope": "/",
-    "theme_color": "#f4bc8d"
-  }
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#fbe5d3",
+    "theme_color": "#f4bc8d",
+    "lang": "pl"
+}

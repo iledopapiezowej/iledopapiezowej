@@ -1,9 +1,14 @@
-const VERSION = 'v1.1'
+const VERSION = 'v1.12'
 
 var start = new Date,
     isPapiezowa = false,
     isDuzy = false,
-    health = 0
+    health = 100,
+    points = 0,
+    perClick = 1,
+    perCatch = 15,
+    chanceMultiplier = 8,
+    time
 
 start.setHours(21, 37, 0)
 
@@ -14,6 +19,58 @@ devtools.toString = function() {
 
 console.log('%c', devtools);
 
+class Storage {
+    static get Local() {
+        return {
+            get(key) {
+                return JSON.parse(localStorage.getItem(key))
+            },
+            set(key, value) {
+                value = JSON.stringify(value)
+                localStorage.setItem(key, value)
+                return value
+            }
+        }
+    }
+    static get Session() {
+        return {
+            get(key) {
+                return JSON.parse(sessionStorage.getItem(key))
+            },
+            set(key, value) {
+                value = JSON.stringify(value)
+                sessionStorage.setItem(key, value)
+                return value
+            }
+        }
+    }
+    static get Cookie() {
+        return {
+            get(key) {
+                var name = key + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for (var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return undefined;
+            },
+            set(key, value, exdays) {
+                var d = new Date();
+                d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+                var expires = "expires=" + d.toUTCString();
+                document.cookie = key + "=" + value + ";" + expires + ";path=/";
+            }
+        }
+    }
+}
+
 function pad(num) {
     return ("0" + parseInt(num)).substr(-2);
 }
@@ -22,104 +79,14 @@ function rand(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function papiezowa() {
-    if (isPapiezowa) return
-    isPapiezowa = true
-
-    barka.play()
-    barka.style.bottom = '5%'
-    clock.style.fontSize = '12vh'
-    display.style.fontSize = '3vh'
-    document.body.classList.add("rainbow");
-}
-
-function popapiezowej() {
-    if (!isPapiezowa) return
-    isPapiezowa = false
-
-    barka.pause()
-    barka.style.bottom = '-25vh'
-    clock.style.fontSize = '5vh'
-    display.style.fontSize = '10vh'
-    document.body.classList.remove("rainbow");
-}
-
-function popup() {
-    var lr = (rand(-1, 1) || 1),
-        side = lr == 1 ? 'left' : 'right'
-
-    minipapiez.style.left = `${rand(5, 95)}vw`
-    minipapiez.style.top = `${rand(5, 95)}vh`
-    minipapiez.style.transform = `scale(${rand(-1, 1) || 1}, ${rand(-1, 1) || 1})`
-    minipapiez.style.opacity = `1`
-    var hide = setTimeout(() => { minipapiez.style.opacity = `0` }, 2000)
-    console.log('popup')
-
-    minipapiez.addEventListener('click', function() {
-        if (minipapiez.style.opacity < .8) return
-        clearTimeout(hide)
-        startClicker()
-    }, false)
-}
-
-function startClicker() {
-    isDuzy = true
-    minipapiez.style.opacity = `0`
-    papiez.style.top = '35vh'
-    bar.style.top = '5vh'
-}
-
-function onClicker() {
-    health--
-    if (health <= 0) stopClicker()
-    progress.style.width = `${health}%`
-}
-
-function stopClicker() {
-    isDuzy = false
-        // minipapiez.style.opacity = `0`
-    papiez.style.top = '100vh'
-    bar.style.top = '-5vh'
-}
-
-window.onload = function() {
-    display = document.querySelector('#display')
-    clock = document.querySelector('#clock')
-    barka = document.querySelector('#barka')
-    points = document.querySelector('#points')
-    papiez = document.querySelector('#papiez')
-    minipapiez = document.querySelector('#minipapiez')
-    bar = document.querySelector('#progressbar')
-    progress = document.querySelector('#progressbar>div')
-    ver = document.querySelector('#ver')
-
-    papiez.onmousedown = onClicker
-
-    setInterval(() => {
-        if (isDuzy) return
-        var r = rand(0, 10)
-        if (r || (health <= 0)) return
-        popup()
-    }, 2137)
-
-    setInterval(() => {
-        var now = new Date
-        if (now > start) start.setDate(start.getDate() + 1)
-
-        var remain = ((start - now) / 1000)
-        var hh = pad((remain / 60 / 60) % 60)
-        var mm = pad((remain / 60) % 60)
-        var ss = pad(remain % 60)
-
-        clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`
-        display.textContent = isPapiezowa ? `${ss}` : `${hh}:${mm}:${ss}`
-
-        if (remain > 86340) papiezowa()
-        else popapiezowej()
-
-    }, 100);
-
-    if (VERSION.endsWith('dev')) ver.classList.add('dev')
-    else ver.classList.add('stable')
-    ver.textContent = VERSION
+if ('serviceWorker' in navigator && false) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js').then(function(registration) {
+            // Registration was successful
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, function(err) {
+            // registration failed :(
+            console.log('ServiceWorker registration failed: ', err);
+        });
+    });
 }
