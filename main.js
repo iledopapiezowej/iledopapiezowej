@@ -1,18 +1,7 @@
 const VERSION = 'v1.12'
 
-var start = new Date,
-    isPapiezowa = false,
-    isDuzy = false,
-    health = 100,
-    points = 0,
-    perClick = 1,
-    perCatch = 250,
-    chanceMultiplier = 16,
-    time,
-    uuid,
+var uuid,
     liveInterval = 4e3
-
-start.setHours(0, 30, 0)
 
 var devtools = function() {};
 devtools.toString = function() {
@@ -176,6 +165,18 @@ async function postData(url = '', data = {}) {
         body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
     return response.json(); // parses JSON response into native JavaScript objects
+}
+
+async function getData(url = '', query = {}) {
+    var response = await fetch(url + '?' + new URLSearchParams(query).toString(), {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        redirect: 'follow',
+        referrerPolicy: 'no-referrer'
+    });
+    return response.json();
 }
 
 uuid = Storage.Local.get('uuid') ? Storage.Local.get('uuid') : Storage.Local.set('uuid', makeID(12))
