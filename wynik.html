@@ -10,7 +10,7 @@
     <meta name="description" content="Ile do papieżowej? Specjalny zegar jp2" />
     <meta name="keywords" content="ile, do, papieżowej, papiezowej, jp2, jan, paweł, pawel, drugi, jp, odliczanie, zegar, 2137, 21, 37, 21:37">
     <meta name="author" content="Mathias">
-    <title>Minigame złap papieża</title>
+    <title>Złap papieża: wynik</title>
 
     <!-- social metadata -->
     <meta property="og:title" content="Ile do papieżowej?" />
@@ -45,54 +45,79 @@
 <body>
     <div class="box">
         <a href="/"><span id="display">--:--:--</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
-            <polyline points="5 12 3 12 12 3 21 12 19 12" />
-            <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-            <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
-          </svg></a>
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="44" height="44"
+                viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <polyline points="5 12 3 12 12 3 21 12 19 12" />
+                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+            </svg></a>
     </div>
     <div class="box">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-viewfinder" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path stroke="none" d="M0 0h24v24H0z" />
             <circle cx="12" cy="12" r="9" />
             <line x1="12" y1="3" x2="12" y2="7" />
             <line x1="12" y1="21" x2="12" y2="18" />
             <line x1="3" y1="12" x2="7" y2="12" />
             <line x1="21" y1="12" x2="18" y2="12" />
             <line x1="12" y1="12" x2="12" y2="12.01" />
-          </svg>
+        </svg>
         <h1>Zdobyłeś</h1>
         <h2 id='punkty'></h2>
     </div>
     <div class="box">
-        Zapisz swój wynik
-        <input type="text" id="nickname" maxlength="4" placeholder="NICK">
+        <!-- Zapisz swój wynik -->
+        <input type="text" id="nickname" maxlength="10" placeholder="NICK">
+        <input type="submit" value="Zapisz wynik" id="submit">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-send" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path stroke="none" d="M0 0h24v24H0z" />
             <line x1="10" y1="14" x2="21" y2="3" />
             <path d="M21 3L14.5 21a.55 .55 0 0 1 -1 0L10 14L3 10.5a.55 .55 0 0 1 0 -1L21 3" />
-          </svg>
+        </svg>
     </div>
     <div class="box">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-pie" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z"/>
+            <path stroke="none" d="M0 0h24v24H0z" />
             <path d="M10 3.2a9 9 0 1 0 10.8 10.8a1 1 0 0 0 -1 -1h-6.8a2 2 0 0 1 -2 -2v-7a.9 .9 0 0 0 -1 -.8" />
             <path d="M15 3.5a9 9 0 0 1 5.5 5.5h-4.5a1 1 0 0 1 -1 -1v-4.5" />
-          </svg>
-        <h3 id="info1"></h3>
-        <h3 id="info2"></h3>
-        <h3 id="info3"></h3>
+        </svg>
+        <h3 id="info1">
+            <svg xmlns="http://www.w3.org/2000/svg" class="loading icon icon-tabler icon-tabler-rotate-2" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M15 4.55a8 8 0 0 0 -6 14.9m0 -4.45v5h-5" />
+                <path d="M13 19.95a8 8 0 0 0 5.3 -12.8" stroke-dasharray=".001 4.13" />
+            </svg>
+        </h3>
+        <h3 id="info2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="loading icon icon-tabler icon-tabler-rotate-2" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M15 4.55a8 8 0 0 0 -6 14.9m0 -4.45v5h-5" />
+                <path d="M13 19.95a8 8 0 0 0 5.3 -12.8" stroke-dasharray=".001 4.13" />
+            </svg>
+        </h3>
+        <h3 id="info3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="loading icon icon-tabler icon-tabler-rotate-2" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" />
+                <path d="M15 4.55a8 8 0 0 0 -6 14.9m0 -4.45v5h-5" />
+                <path d="M13 19.95a8 8 0 0 0 5.3 -12.8" stroke-dasharray=".001 4.13" />
+            </svg>
+        </h3>
     </div>
-    <div class="box"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-bar" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z"/>
-        <rect x="3" y="12" width="6" height="8" rx="1" />
-        <rect x="9" y="8" width="6" height="12" rx="1" />
-        <rect x="15" y="4" width="6" height="16" rx="1" />
-        <line x1="4" y1="20" x2="18" y2="20" />
-      </svg>
-        <ol id='scoreboard'>
-        </ol>
+    <div class="box" id='scoreboard'>
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-bar" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <rect x="3" y="12" width="6" height="8" rx="1" />
+            <rect x="9" y="8" width="6" height="12" rx="1" />
+            <rect x="15" y="4" width="6" height="16" rx="1" />
+            <line x1="4" y1="20" x2="18" y2="20" />
+        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" class="loading icon icon-tabler icon-tabler-rotate-2" width="44" height="44" viewBox="0 0 24 24" stroke-width="1.5" stroke="#795548" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" />
+            <path d="M15 4.55a8 8 0 0 0 -6 14.9m0 -4.45v5h-5" />
+            <path d="M13 19.95a8 8 0 0 0 5.3 -12.8" stroke-dasharray=".001 4.13" />
+        </svg>
     </div>
 </body>
 

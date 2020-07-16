@@ -1,4 +1,5 @@
-const VERSION = 'v1.12'
+const VERSION = 'v1.12',
+    papieztime = [21, 37, 0]
 
 var uuid,
     liveInterval = 4e3
@@ -179,7 +180,25 @@ async function getData(url = '', query = {}) {
     return response.json();
 }
 
+function doneLoading(node) {
+    node.querySelector('.loading').remove()
+}
+
 uuid = Storage.Local.get('uuid') ? Storage.Local.get('uuid') : Storage.Local.set('uuid', makeID(12))
+
+// live updater
+function update() {
+    if (document.visibilityState == 'hidden') return
+    postData(`/api/live/update`, {
+        uuid: uuid,
+        url: document.location.href.slice(document.location.origin.length)
+    }).then(data => {
+        if (typeof viewcount != 'undefined') viewcount.textContent = data.counter
+    });
+}
+
+update()
+setInterval(update, liveInterval)
 
 if ('serviceWorker' in navigator && false) {
     window.addEventListener('load', function() {

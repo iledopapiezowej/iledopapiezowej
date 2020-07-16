@@ -1,0 +1,12 @@
+.icon {
+    position: absolute;
+    right: 0;
+    padding: 0px 5px;
+}
+
+#display {
+    padding: 0.2rem;
+    margin: .2rem;
+    position: relative;
+    display: inline-block;
+}

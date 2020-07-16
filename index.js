@@ -86,7 +86,7 @@ const minigame = {
 }
 
 // papieżowa
-var counter = new Counter(21, 37, 0)
+var counter = new Counter(...papieztime)
 
 counter.addEvent('tick', function(data) {
     clock.textContent = `${pad(data.now.getHours())}:${pad(data.now.getMinutes())}`
@@ -112,17 +112,6 @@ window.onload = function() {
     papiez.onmousedown = function() { minigame.click() }
 
     minipapiez.addEventListener('click', function() { minigame.catch() }, false)
-
-    // live updater
-    function update() {
-        if (document.visibilityState == 'hidden') return
-        postData(`/api/live/update/${uuid}`).then(data => {
-            viewcount.textContent = data.counter
-        });
-    }
-
-    update()
-    setInterval(update, liveInterval)
 
     ver.textContent = VERSION
 }

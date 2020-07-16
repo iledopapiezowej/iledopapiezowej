@@ -1,4 +1,6 @@
-var counter = new Counter(21, 37, 0)
+var counter = new Counter(...papieztime)
+
+sent = Storage.Session.get('sent') ? Storage.Session.get('uuid') : false
 
 counter.addEvent('tick', function(data) {
     display.textContent = counter.active ? `${data.format.s}` : `${data.format.h}:${data.format.m}:${data.format.s}`
@@ -11,29 +13,54 @@ window.onload = function() {
     info2 = document.querySelector('#info2')
     info3 = document.querySelector('#info3')
     scoreboard = document.querySelector('#scoreboard')
+    nick = document.querySelector('#nickname')
+    submit = document.querySelector('#submit')
 
     wynik = Storage.Session.get('wynik')
-    p = 15e6 / wynik.time
-    p += wynik.points
-    p = p.toFixed(2)
-    punkty.textContent = `${p} punktów`
+    score = ((15e6 / wynik.time) + wynik.points)
 
-    getData(`/api/scoreboard/whereami`, { score: 14 }).then(data => {
-        info3.textContent = `Twój wynik jest lepszy od ${data.percentage}% graczy`
+    punkty.textContent = `${score.toFixed(2)} punktów`
+
+    submit.onclick = function save() {
+        if (sent) return
+        postData('/api/scoreboard/save', {
+            nick: nick.value,
+            time: wynik.time,
+            points: wynik.points,
+            score: score,
+            uuid: uuid,
+        }).catch(e => {
+            console.log('save error')
+        })
+        var current = document.createElement('span')
+        current.textContent = `${nick.value.toUpperCase()} - ${score.toFixed(2)}`
+        current.style.fontFamily = 'monospace'
+        current.style.fontSize = '2rem'
+        nick.parentNode.appendChild(current)
+        nick.remove()
+        submit.remove()
+    }
+
+    getData('/api/scoreboard/whereami', { score: score }).then(data => {
+        doneLoading(info3)
+        info3.textContent = `Twój wynik jest lepszy od ${data.percentage.toFixed(2)}% graczy`
     });
 
-    getData(`/api/scoreboard/top`, { score: p }).then(data => {
-
-        data.list.reduceRight(function(r, a) {
+    getData('/api/scoreboard/top').then(data => {
+        doneLoading(scoreboard)
+        var ol = document.createElement('ol')
+        data.list.reduce(function(r, a) {
             var li = document.createElement('li')
-            li.innerText = `${a[0]} - ${a[1]}`
-            scoreboard.appendChild(li)
+            li.innerText = `${a.nick} - ${a.score.toFixed(2)}`
+            ol.appendChild(li)
             return true
-        }, scoreboard)
-
+        }, ol)
+        scoreboard.appendChild(ol)
     });
 
-    info1.textContent = `Zebrałeś ${ wynik.catches } papieży`
+    doneLoading(info1)
+    info1.textContent = `Zebrałeś ${wynik.catches} papieży`
+    doneLoading(info2)
     info2.textContent = `Twój czas to ${(wynik.time / 1e3).toFixed(2)}s`
 
 }

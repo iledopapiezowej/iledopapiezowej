@@ -19,6 +19,10 @@ body {
     animation: colorchange 1.1s infinite;
 }
 
+.spin {
+    animation: spin 1s infinite;
+}
+
 @keyframes colorchange {
     0% {
         background: red;
@@ -45,10 +49,10 @@ body {
 
 @keyframes spin {
     from {
-        transform: rotate(0deg);
+        transform: rotate(360deg);
     }
     to {
-        transform: rotate(360deg);
+        transform: rotate(0deg);
     }
 }
 
@@ -113,4 +117,10 @@ a:hover {
     background: #ffffff55;
     box-sizing: border-box;
     border-radius: 4px;
+}
+
+.loading {
+    animation: spin 1s infinite;
+    /* display: block; */
+    position: relative !important;
 }
