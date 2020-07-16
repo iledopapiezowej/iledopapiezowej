@@ -6,11 +6,13 @@ var start = new Date,
     health = 100,
     points = 0,
     perClick = 1,
-    perCatch = 15,
-    chanceMultiplier = 8,
-    time
+    perCatch = 250,
+    chanceMultiplier = 16,
+    time,
+    uuid,
+    liveInterval = 4e3
 
-start.setHours(21, 37, 0)
+start.setHours(0, 30, 0)
 
 var devtools = function() {};
 devtools.toString = function() {
@@ -26,8 +28,7 @@ class Storage {
                 return JSON.parse(localStorage.getItem(key))
             },
             set(key, value) {
-                value = JSON.stringify(value)
-                localStorage.setItem(key, value)
+                localStorage.setItem(key, JSON.stringify(value))
                 return value
             }
         }
@@ -38,8 +39,7 @@ class Storage {
                 return JSON.parse(sessionStorage.getItem(key))
             },
             set(key, value) {
-                value = JSON.stringify(value)
-                sessionStorage.setItem(key, value)
+                sessionStorage.setItem(key, JSON.stringify(value))
                 return value
             }
         }
@@ -71,6 +71,87 @@ class Storage {
     }
 }
 
+class Counter {
+    constructor(hours, minutes, seconds) {
+        this._goal = new Date()
+        this._events = {
+            on: [],
+            off: [],
+            tick: []
+        }
+        this._reached = false
+        this._goal.setHours(hours, minutes, seconds)
+        setInterval(() => { this._tick() }, 100)
+    }
+
+    get active() {
+        return this._reached
+    }
+
+    addEvent(onoff, event) {
+        switch (onoff) {
+            default: throw new Error('Incorrect event name')
+            case 'on':
+                    this._events['on'].push(event)
+                break
+            case 'off':
+                    this._events['off'].push(event)
+                break
+            case 'tick':
+                    this._events['tick'].push(event)
+                break
+        }
+    }
+
+    _tick() {
+        var now = new Date
+        if (now > this._goal) this._goal.setDate(this._goal.getDate() + 1)
+        var remain = ((this._goal - now) / 1000),
+            data = {
+                remain: remain,
+                now: now,
+                format: {
+                    h: pad((remain / 60 / 60) % 60),
+                    m: pad((remain / 60) % 60),
+                    s: pad(remain % 60)
+                }
+            }
+
+        if (remain > 86340) {
+            if (!this._reached) {
+                this._reached = true
+                console.log('event: on')
+                this._events['on'].forEach(e => e(data))
+            }
+        } else {
+            if (this._reached) {
+                this._reached = false
+                console.log('event: off')
+                this._events['off'].forEach(e => e(data))
+            }
+        }
+
+        this._events['tick'].forEach(function(e) { e(data) })
+    }
+}
+
+function makeID(n) {
+    /**
+     * Generate base64 id
+     * @param {int} n output length
+     * 
+     * @returns {string} generated base64 string identificator
+     */
+
+    var out = "";
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
+
+    for (var i = 0; i < n; i++)
+        out += chars.charAt(Math.floor(Math.random() * chars.length));
+
+    return out;
+}
+
 function pad(num) {
     return ("0" + parseInt(num)).substr(-2);
 }
@@ -78,6 +159,26 @@ function pad(num) {
 function rand(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
+
+async function postData(url = '', data = {}) {
+    // Default options are marked with *
+    var response = await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        headers: {
+            'Content-Type': 'application/json'
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data) // body data type must match "Content-Type" header
+    });
+    return response.json(); // parses JSON response into native JavaScript objects
+}
+
+uuid = Storage.Local.get('uuid') ? Storage.Local.get('uuid') : Storage.Local.set('uuid', makeID(12))
 
 if ('serviceWorker' in navigator && false) {
     window.addEventListener('load', function() {

@@ -1,0 +1,121 @@
+#clocks {
+    height: 100vh;
+}
+
+#display {
+    font-size: 10vh;
+    padding-bottom: 40vh;
+}
+
+#clock {
+    font-size: 5vh;
+    padding-top: 40vh;
+}
+
+#clock.papiezowa {
+    font-size: 12vh
+}
+
+#display.papiezowa {
+    font-size: 3vh
+}
+
+body.papiezowa {
+    animation: colorchange 1.1s infinite;
+    overflow: hidden;
+}
+
+#views.papiezowa {
+    position: fixed;
+    bottom: .2rem;
+    top: unset;
+    z-index: 5;
+}
+
+#papiez {
+    position: fixed;
+    height: 30vh;
+    bottom: 35vh;
+    margin: auto;
+    left: 0;
+    right: 0;
+    transition-property: top;
+    transition: ease-out 0.3s;
+    z-index: 10;
+}
+
+#papiez:active {
+    height: 36vh;
+    top: 32vh;
+}
+
+#minipapiez {
+    position: fixed;
+    width: 5vh;
+    height: 5vh;
+    transition: opacity ease-out .1s;
+    opacity: 0;
+    z-index: 20;
+}
+
+#minipapiez.popup {
+    opacity: 1;
+}
+
+#minipapiez:active {
+    transform: scale(1.5) !important
+}
+
+#barka {
+    position: fixed;
+    bottom: 3rem;
+    left: 0;
+    right: 0;
+    margin: auto;
+    transition: bottom ease-in-out 0.5s;
+    z-index: 15;
+}
+
+#progressbar {
+    background-color: #ffffff55;
+    padding: 3px;
+    position: fixed;
+    width: 75vw;
+    top: 5vh;
+    left: 0;
+    right: 0;
+    margin: auto;
+    transition-property: top width;
+    transition: ease-in-out .5s;
+    z-index: 10;
+}
+
+#progressbar>div {
+    background-color: #ff000066;
+    width: 100%;
+    height: 20px;
+}
+
+#settings {
+    position: absolute;
+    right: 0;
+    top: .2rem;
+    margin: 0px 5px;
+}
+
+#views {
+    position: absolute;
+    left: 0;
+    top: .2rem;
+    margin: 0px 5px;
+}
+
+#views>.icon {
+    stroke: #e62a2a
+}
+
+#viewcount {
+    float: right;
+    padding: 0.4rem .75rem;
+    color: #774b27;
+}

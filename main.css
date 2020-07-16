@@ -12,9 +12,7 @@ body {
 
 ::-webkit-scrollbar {
     width: 0px;
-    /* Remove scrollbar space */
     background: transparent;
-    /* Optional: just make scrollbar invisible */
 }
 
 .rainbow {
@@ -62,69 +60,12 @@ body {
     top: -50vh !important;
 }
 
-#clocks {
-    height: 100vh;
-}
-
-#display {
-    font-size: 10vh;
-    padding-bottom: 40vh;
-}
-
-#clock {
-    font-size: 5vh;
-    padding-top: 40vh;
-}
-
-#papiez {
-    position: fixed;
-    height: 30vh;
-    bottom: 35vh;
-    margin: auto;
-    left: 0;
-    right: 0;
-    transition-property: top;
-    transition: ease-out 0.3s;
-}
-
-#papiez:active {
-    height: 36vh;
-    top: 32vh;
-}
-
-#points {
-    position: fixed;
-    font-size: 5vh;
-    top: 5vh;
-    margin: 5% auto;
-    left: 0;
-    right: 0;
-}
-
-#minipapiez {
-    position: fixed;
-    width: 5vh;
-    height: 5vh;
-    transition: opacity ease-out .1s;
-    opacity: 0;
-}
-
-#barka {
-    position: fixed;
-    bottom: 2%;
-    left: 0;
-    right: 0;
-    margin: auto;
-    transition: bottom ease-in-out 0.5s;
-    bottom: -25vh;
-}
-
 #drawer {
     width: 100vw;
     height: 1em;
     background: #ffffff30;
     padding: .7rem 0px;
-    /* /* box-sizing: border-box; */
+    position: relative;
 }
 
 #drawer:active {
@@ -141,28 +82,6 @@ a:hover {
     text-decoration: underline;
 }
 
-#progressbar {
-    background-color: #ffffff55;
-    /* border-radius: 13px; */
-    /* (height of inner div) / 2 + padding */
-    padding: 3px;
-    position: fixed;
-    width: 75vw;
-    top: 5vh;
-    left: 0;
-    right: 0;
-    margin: auto;
-    transition: .5s;
-}
-
-#progressbar>div {
-    background-color: #ff000066;
-    width: 100%;
-    /* Adjust with JavaScript */
-    height: 20px;
-    /* border-radius: 10px; */
-}
-
 #ver {
     padding: 4px 5px;
     border-radius: 4px;
@@ -175,4 +94,23 @@ a:hover {
 #ver.stable {
     background-color: #f1e7e7;
     color: #1b0c0c;
+}
+
+.icon {
+    height: 2rem;
+    stroke: #774b27;
+}
+
+.btn {
+    background: #ffffff50;
+    border-radius: 4px;
+}
+
+.box {
+    width: calc(100vw - 12px);
+    margin: 3px 6px;
+    padding: 3px 6px;
+    background: #ffffff55;
+    box-sizing: border-box;
+    border-radius: 4px;
 }

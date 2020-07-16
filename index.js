@@ -1,67 +1,85 @@
 function papiezowa() {
-    if (isPapiezowa) return
-    isPapiezowa = true
+    // if (isPapiezowa) return
+    // isPapiezowa = true
 
     barka.play()
-    barka.style.bottom = '5%'
-    clock.style.fontSize = '12vh'
-    display.style.fontSize = '3vh'
-    document.body.classList.add("rainbow");
+        // barka.style.bottom = '5%'
+        // clock.style.fontSize = '12vh'
+        // display.style.fontSize = '3vh'
+        // document.body.classList.add("rainbow");
+    document.body.classList.add('papiezowa')
+    clock.classList.add('papiezowa')
+    display.classList.add('papiezowa')
+    views.classList.add('papiezowa')
+    barka.classList.remove('hideBottom')
 }
 
 function popapiezowej() {
-    if (!isPapiezowa) return
-    isPapiezowa = false
+    // if (!isPapiezowa) return
+    // isPapiezowa = false
 
     barka.pause()
-    barka.style.bottom = '-25vh'
-    clock.style.fontSize = '5vh'
-    display.style.fontSize = '10vh'
-    document.body.classList.remove("rainbow");
+    document.body.classList.remove('papiezowa')
+    clock.classList.remove('papiezowa')
+    display.classList.remove('papiezowa')
+    views.classList.remove('papiezowa')
+    barka.classList.add('hideBottom')
+        // barka.style.bottom = '-25vh'
+        // clock.style.fontSize = '5vh'
+        // display.style.fontSize = '10vh'
+        // document.body.classList.remove("rainbow");
 }
 
-function popup() {
-    var lr = (rand(-1, 1) || 1),
-        side = lr == 1 ? 'left' : 'right'
-
-    minipapiez.style.left = `${rand(5, 95)}vw`
-    minipapiez.style.top = `${rand(5, 95)}vh`
-    minipapiez.style.transform = `scale(${rand(-1, 1) || 1}, ${rand(-1, 1) || 1})`
-    minipapiez.style.opacity = `1`
-    var hide = setTimeout(() => { minipapiez.style.opacity = `0` }, 2000)
-    console.log('popup')
-
-    minipapiez.addEventListener('click', function() {
-        if (minipapiez.style.opacity < .8) return
-        clearTimeout(hide)
-        minipapiez.style.opacity = `0`
+const minigame = {
+    _timeout: undefined,
+    _randomize() {
+        var lr = (rand(-1, 1) || 1),
+            side = lr == 1 ? 'left' : 'right'
+        minipapiez.style.left = `${rand(5, 95)}vw`
+        minipapiez.style.top = `${rand(5, 95)}vh`
+        minipapiez.style.transform = `scale(${rand(-1, 1) || 1}, ${rand(-1, 1) || 1})`
+    },
+    _show() {
+        clearTimeout(this._timeout)
+        minipapiez.classList.add('popup')
+    },
+    _hide() {
+        minipapiez.classList.remove('popup')
+    },
+    popup() {
+        console.log('popup')
+        this._randomize()
+        this._show()
+        this._timeout = setTimeout(this._hide, 2000)
+    },
+    catch () {
+        if (minipapiez.className != 'popup') return
+        clearTimeout(this._timeout)
+        this._hide()
         if (isDuzy) points += perCatch
-        else startClicker()
-    }, false)
-}
-
-function startClicker() {
-    isDuzy = true
-    time = performance.now()
-    papiez.classList.remove('hideBottom')
-    bar.classList.remove('hideTop')
-}
-
-function onClicker() {
-    health--
-    if (health <= 0) stopClicker()
-    progress.style.width = `${health}%`
-}
-
-function stopClicker() {
-    isDuzy = false
-    papiez.style.top = '100vh'
-    bar.style.top = '-5vh'
-    Storage.Session.set('wynik', {
-        time: performance.now() - time,
-        points: points
-    })
-    location.pathname = 'wynik.html'
+        else this._start()
+    },
+    _start() {
+        isDuzy = true
+        time = performance.now()
+        papiez.classList.remove('hideBottom')
+        bar.classList.remove('hideTop')
+    },
+    click() {
+        health--
+        if (health <= 0) this._end()
+        progress.style.width = `${health}%`
+    },
+    _end() {
+        isDuzy = false
+        papiez.classList.add('hideBottom')
+        bar.classList.add('hideTop')
+        Storage.Session.set('wynik', {
+            time: performance.now() - time,
+            points: points
+        })
+        location.pathname = 'wynik.html'
+    }
 }
 
 window.onload = function() {
@@ -73,33 +91,39 @@ window.onload = function() {
     bar = document.querySelector('#progressbar')
     progress = document.querySelector('#progressbar>div')
     ver = document.querySelector('#ver')
+    viewcount = document.querySelector('#viewcount')
 
-    papiez.onmousedown = onClicker
+    papiez.onmousedown = function() { minigame.click() }
 
+    minipapiez.addEventListener('click', function() { minigame.catch() }, false)
+
+    // papieżowa
+    var counter = new Counter(11, 43, 45)
+
+    counter.addEvent('tick', function(data) {
+        clock.textContent = `${pad(data.now.getHours())}:${pad(data.now.getMinutes())}`
+        display.textContent = counter.active ? `${data.format.s}` : `${data.format.h}:${data.format.m}:${data.format.s}`
+    })
+    counter.addEvent('on', data => papiezowa(data))
+    counter.addEvent('off', data => popapiezowej(data))
+
+    // minigame
     setInterval(() => {
-        var r = rand(0, 6 / isPapiezowa ? chanceMultiplier : 1)
+        var r = rand(0, 6 / (counter.active ? chanceMultiplier : 1))
         if (r || (health <= 0)) return
-        popup()
-    }, 2137)
+        minigame.popup()
+    }, 1e3)
 
-    setInterval(() => {
-        var now = new Date
-        if (now > start) start.setDate(start.getDate() + 1)
+    // live updater
+    function update() {
+        if (document.visibilityState == 'hidden') return
+        postData(`/api/live/update/${uuid}`).then(data => {
+            viewcount.textContent = data.counter
+        });
+    }
 
-        var remain = ((start - now) / 1000)
-        var hh = pad((remain / 60 / 60) % 60)
-        var mm = pad((remain / 60) % 60)
-        var ss = pad(remain % 60)
+    update()
+    setInterval(update, liveInterval)
 
-        clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`
-        display.textContent = isPapiezowa ? `${ss}` : `${hh}:${mm}:${ss}`
-
-        if (remain > 86340) papiezowa()
-        else popapiezowej()
-
-    }, 100);
-
-    if (VERSION.endsWith('dev')) ver.classList.add('dev')
-    else ver.classList.add('stable')
     ver.textContent = VERSION
 }
