@@ -86,11 +86,11 @@ window.onload = function() {
     display = document.querySelector('#display')
     clock = document.querySelector('#clock')
     barka = document.querySelector('#barka')
-    points = document.querySelector('#points')
+        // points = document.querySelector('#points')
         // papiez = document.querySelector('#papiez')
         // minipapiez = document.querySelector('#minipapiez')
-    bar = document.querySelector('#progressbar')
-    progress = document.querySelector('#progressbar>div')
+        // bar = document.querySelector('#progressbar')
+        // progress = document.querySelector('#progressbar>div')
     ver = document.querySelector('#ver')
 
     barka.volume = 0.5
