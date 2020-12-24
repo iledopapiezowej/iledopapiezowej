@@ -21,6 +21,7 @@
     <meta property="twitter:image" content="https://iledopapiezowej.pl/media/thumbnail.png" />
 
     <link rel="stylesheet" href="/style.css">
+    <script src="/snow.js"></script>
     <script src="/main.js"></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -41,19 +42,22 @@
 </head>
 
 <body>
-    <audio controls id="barka" src="/media/barka.mp3"></audio>
+    <canvas id="snowCanvas"></canvas>
+
+    <img id="lights" src="/media/lights.png">
+    <audio controls id="barka" src="/media/betlejem.ogg"></audio>
     <span id="points"></span>
     <div id="progressbar">
         <div></div>
     </div>
-    <img src="/media/icon_256.png" alt="papież" id="papiez" class="spin">
-    <img src="/media/cursor1.png" alt="papież" id="minipapiez">
+    <!-- <img src="/media/icon_256.png" alt="papież" id="papiez" class="spin"> -->
+    <!-- <img src="/media/cursor1.png" alt="papież" id="minipapiez"> -->
     <div id="clocks">
         <div id="clock">--:--</div>
         <div id="display">--:--:--</div>
     </div>
     <div id="drawer">
-        <a href="https://github.com/Maathias/iledopapiezowej">github.com/Maathias/iledopapiezowej</a> <span id='ver'></span>
+        <a href="https://github.com/Maathias/iledopapiezowej">Maathias/iledopapiezowej</a> <span id='ver'></span>
     </div>
 </body>
 

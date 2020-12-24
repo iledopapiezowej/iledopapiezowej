@@ -3,7 +3,7 @@ body {
     vertical-align: middle;
     margin: 0px;
     background-color: #f4bc8d;
-    cursor: url('media/cursor.png'), auto;
+    cursor: url('media/wczapce.png'), auto;
     /* font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; */
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     color: white;
@@ -52,6 +52,21 @@ body {
     to {
         transform: rotate(360deg);
     }
+}
+
+#lights {
+    float: left;
+    position: fixed;
+    top: 0vh;
+    right: -25vh;
+    height: 25vh;
+    transform: rotate(45deg);
+}
+
+#snowCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 
 #clocks {

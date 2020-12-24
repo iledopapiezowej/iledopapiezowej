@@ -1,4 +1,4 @@
-const VERSION = 'v1.11'
+const VERSION = 'v1.13'
 
 var start = new Date,
     isPapiezowa = false,
@@ -87,13 +87,27 @@ window.onload = function() {
     clock = document.querySelector('#clock')
     barka = document.querySelector('#barka')
     points = document.querySelector('#points')
-    papiez = document.querySelector('#papiez')
-    minipapiez = document.querySelector('#minipapiez')
+        // papiez = document.querySelector('#papiez')
+        // minipapiez = document.querySelector('#minipapiez')
     bar = document.querySelector('#progressbar')
     progress = document.querySelector('#progressbar>div')
     ver = document.querySelector('#ver')
 
-    papiez.onmousedown = onClicker
+    barka.volume = 0.5
+        // papiez.onmousedown = onClicker
+
+    _snowCanvas({
+        el: document.getElementById("snowCanvas"),
+        snowColor: "#fff",
+        background: "transparent",
+        maxSpeed: 4,
+        minSpeed: 1,
+        width: "",
+        height: "",
+        amount: 150,
+        rMax: 4,
+        rMin: 1
+    })
 
     setInterval(() => {
         if (isDuzy) return
