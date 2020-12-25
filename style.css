@@ -70,6 +70,13 @@ body {
     pointer-events: none;
 }
 
+#promo {
+    position: absolute;
+    bottom: .5rem;
+    left: 0;
+    width: 100%;
+}
+
 #clocks {
     height: 100vh;
 }
