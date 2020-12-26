@@ -17,6 +17,16 @@ body {
     /* Optional: just make scrollbar invisible */
 }
 
+a,
+a:visited {
+    color: #774b27;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 .rainbow {
     animation: colorchange 1.1s infinite;
 }
@@ -45,14 +55,15 @@ body {
     }
 }
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+#promo {
+    position: absolute;
+    bottom: .5rem;
+    left: 0;
+    width: 100%;
 }
+
+
+/* main */
 
 #clocks {
     height: 100vh;
@@ -68,38 +79,6 @@ body {
     padding-top: 40vh;
 }
 
-#papiez {
-    position: fixed;
-    height: 30vh;
-    top: 100vh;
-    margin: auto;
-    left: 0;
-    right: 0;
-    transition: ease-out 0.3s;
-}
-
-#papiez:active {
-    height: 36vh;
-    top: 32vh;
-}
-
-#points {
-    position: fixed;
-    font-size: 5vh;
-    top: 5vh;
-    margin: 5% auto;
-    left: 0;
-    right: 0;
-}
-
-#minipapiez {
-    position: fixed;
-    width: 5vh;
-    height: 5vh;
-    transition: opacity ease-out .1s;
-    opacity: 0;
-}
-
 #barka {
     position: fixed;
     bottom: 2%;
@@ -109,6 +88,9 @@ body {
     transition: bottom ease-in-out 0.5s;
     bottom: -25vh;
 }
+
+
+/* footer */
 
 #drawer {
     width: 100vw;
@@ -120,38 +102,6 @@ body {
 
 #drawer:active {
     bottom: 0;
-}
-
-a,
-a:visited {
-    color: #774b27;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-#progressbar {
-    background-color: #ffffff55;
-    /* border-radius: 13px; */
-    /* (height of inner div) / 2 + padding */
-    padding: 3px;
-    position: fixed;
-    width: 75vw;
-    top: -5vh;
-    left: 0;
-    right: 0;
-    margin: auto;
-    transition: .5s;
-}
-
-#progressbar>div {
-    background-color: #ff000066;
-    width: 100%;
-    /* Adjust with JavaScript */
-    height: 20px;
-    /* border-radius: 10px; */
 }
 
 #ver {

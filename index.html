@@ -1,4 +1,5 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pl">
 
 <head>
     <meta charset="UTF-8">
@@ -23,6 +24,8 @@
     <link rel="stylesheet" href="/style.css">
     <script src="/main.js"></script>
 
+    <link rel="stylesheet" href="/christmas.css">
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-150749288-2"></script>
     <script>
@@ -35,26 +38,44 @@
         gtag('config', 'UA-150749288-2');
     </script>
 
-    <!-- Google AdSense -->
-    <script data-ad-client="ca-pub-8038987050112567" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-
 </head>
 
 <body>
-    <audio controls id="barka" src="/media/barka.mp3"></audio>
-    <span id="points"></span>
+    <!-- christmas special -->
+    <canvas id="snowCanvas"></canvas>
+    <script src="/snow.js"></script>
+    <script>
+        _snowCanvas({
+            el: document.getElementById("snowCanvas"),
+            snowColor: "#fff",
+            background: "transparent",
+            maxSpeed: 4,
+            minSpeed: 1,
+            width: "",
+            height: "",
+            amount: 150,
+            rMax: 4,
+            rMin: 1
+        })
+    </script>
+
+    <img id="lights" src="/media/lights.png" alt="lampki świąteczne">
+    <audio controls id="barka" src="/media/betlejem.ogg"></audio>
+    <!-- <span id="points"></span>
     <div id="progressbar">
         <div></div>
-    </div>
-    <img src="/media/icon_256.png" alt="papież" id="papiez" class="spin">
-    <img src="/media/cursor1.png" alt="papież" id="minipapiez">
+    </div> -->
+    <!-- <img src="/media/icon_256.png" alt="papież" id="papiez" class="spin"> -->
+    <!-- <img src="/media/cursor1.png" alt="papież" id="minipapiez"> -->
     <div id="clocks">
         <div id="clock">--:--</div>
         <div id="display">--:--:--</div>
     </div>
     <div id="drawer">
-        <a href="https://github.com/Maathias/iledopapiezowej">github.com/Maathias/iledopapiezowej</a> <span id='ver'></span>
+        <a href="https://github.com/Maathias/iledopapiezowej">Maathias/iledopapiezowej</a> <span id='ver'></span>
     </div>
+    <span id="promo">
+    </span>
 </body>
 
 </html>
