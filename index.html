@@ -24,8 +24,6 @@
     <link rel="stylesheet" href="/style.css">
     <script src="/main.js"></script>
 
-    <link rel="stylesheet" href="/christmas.css">
-
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-150749288-2"></script>
     <script>
@@ -41,26 +39,7 @@
 </head>
 
 <body>
-    <!-- christmas special -->
-    <canvas id="snowCanvas"></canvas>
-    <script src="/snow.js"></script>
-    <script>
-        _snowCanvas({
-            el: document.getElementById("snowCanvas"),
-            snowColor: "#fff",
-            background: "transparent",
-            maxSpeed: 4,
-            minSpeed: 1,
-            width: "",
-            height: "",
-            amount: 150,
-            rMax: 4,
-            rMin: 1
-        })
-    </script>
-
-    <img id="lights" src="/media/lights.png" alt="lampki świąteczne">
-    <audio controls id="barka" src="/media/betlejem.ogg"></audio>
+    <audio controls id="audio" src="/media/betlejem.ogg"></audio>
     <!-- <span id="points"></span>
     <div id="progressbar">
         <div></div>

@@ -1,4 +1,4 @@
-const VERSION = 'v1.13'
+const VERSION = 'v1.14'
 
 var goal = new Date,
     isPapiezowa = false,
@@ -36,7 +36,7 @@ window.onload = function() {
     Elements = {
         display: document.querySelector('#display'),
         clock: document.querySelector('#clock'),
-        audio: document.querySelector('#barka'),
+        audio: document.querySelector('#audio'),
         ver: document.querySelector('#ver')
     }
 
