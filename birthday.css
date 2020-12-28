@@ -1,0 +1,22 @@
+#balony {
+    position: fixed;
+    height: 35vh;
+    right: -5rem;
+    bottom: 55%;
+    transform: rotate(-25deg);
+}
+
+#trojkaty {
+    position: fixed;
+    width: 70vh;
+    left: -10vh;
+    transform: rotate(-45deg);
+}
+
+#confetti {
+    position: fixed;
+    height: 25vh;
+    left: 4rem;
+    bottom: 2rem;
+    display: none;
+}
