@@ -19,16 +19,12 @@ function papiezowa() {
     Elements.clock.style.fontSize = '12vh'
     Elements.display.style.fontSize = '3vh'
     document.body.classList.add("rainbow");
-    document.querySelector('#confetti').style.display = 'block'
 }
 
 function popapiezowej() {
-    // Elements.audio.pause()
-    // Elements.audio.style.bottom = '-25vh'
     Elements.clock.style.fontSize = '5vh'
     Elements.display.style.fontSize = '10vh'
     document.body.classList.remove("rainbow");
-    document.querySelector('#confetti').style.display = 'none'
 }
 
 window.onload = function() {
