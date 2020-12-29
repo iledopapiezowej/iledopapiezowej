@@ -1,4 +1,4 @@
-const VERSION = 'v1.13'
+const VERSION = 'v1.15'
 
 var goal = new Date,
     isPapiezowa = false,
@@ -19,14 +19,16 @@ function papiezowa() {
     Elements.clock.style.fontSize = '12vh'
     Elements.display.style.fontSize = '3vh'
     document.body.classList.add("rainbow");
+    document.querySelector('#confetti').style.display = 'block'
 }
 
 function popapiezowej() {
-    Elements.audio.pause()
-    Elements.audio.style.bottom = '-25vh'
+    // Elements.audio.pause()
+    // Elements.audio.style.bottom = '-25vh'
     Elements.clock.style.fontSize = '5vh'
     Elements.display.style.fontSize = '10vh'
     document.body.classList.remove("rainbow");
+    document.querySelector('#confetti').style.display = 'none'
 }
 
 window.onload = function() {
@@ -36,11 +38,15 @@ window.onload = function() {
     Elements = {
         display: document.querySelector('#display'),
         clock: document.querySelector('#clock'),
-        audio: document.querySelector('#barka'),
+        audio: document.querySelector('#audio'),
         ver: document.querySelector('#ver')
     }
 
     Elements.audio.volume = 0.5
+
+    Elements.audio.onpause = function() {
+        if (!isPapiezowa) Elements.audio.style.bottom = '-25vh'
+    }
 
     // Elements.clock tick, goal detection
     setInterval(() => {

@@ -79,9 +79,8 @@ a:hover {
     padding-top: 40vh;
 }
 
-#barka {
+#audio {
     position: fixed;
-    bottom: 2%;
     left: 0;
     right: 0;
     margin: auto;
@@ -105,8 +104,11 @@ a:hover {
 }
 
 #ver {
+    font-size: .6rem;
     padding: 4px 5px;
     border-radius: 4px;
+    position: relative;
+    bottom: 25%;
 }
 
 #ver.dev {
