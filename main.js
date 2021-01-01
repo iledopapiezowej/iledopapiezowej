@@ -1,62 +1,65 @@
 const VERSION = 'v1.15.2'
 
 var Elements = {
-		display: undefined,
-		clock: undefined,
-		audio: undefined,
-		ver: undefined
-	},
-	Papiezowa
+	display: undefined,
+	clock: undefined,
+	audio: undefined,
+	ver: undefined
+},
+	Papiezowa = {
+		reached: false,
+		goal: new Date,
+		_onEvents: [],
+		_offEvents: [],
+		_on() {
+			for (let e of this._onEvents) {
+				e()
+			}
+		},
+		_off() {
+			for (let e of this._offEvents) {
+				e()
+			}
+		},
+		tick() {
+			var now = new Date
+			pad = x => ("0" + parseInt(x)).substr(-2)
 
-Papiezowa = {
-	reached: false,
-	goal: new Date,
-	_onEvents: [],
-	_offEvents: [],
-	_on() {
-		for (let e of this._onEvents) {
-			e()
+			if (now > this.goal) this.goal.setDate(this.goal.getDate() + 1)
+
+			var remain = ((this.goal - now) / 1000),
+				h = parseInt((remain / 60 / 60) % 60),
+				m = parseInt((remain / 60) % 60),
+				s = parseInt(remain % 60)
+
+			if (h > 0) m = pad(m)
+			if ((m > 0) && (m < 23)) s = pad(s)
+
+			Elements.clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`
+			Elements.display.textContent = this.reached ? `${s}` : `${h > 0 ? `${h}:` : ''}${m > 0 ? `${m}:` : ''}${s}`
+
+			if (remain > 86340) {	// goal minute
+				if (!this.reached) {	// is reached already?
+					this.reached = true
+					// this._on()
+					console.log(this.reached)
+				}
+			} else if (this.reached) {
+				this.reached = false
+				// this._off()
+				console.log(this.reached)
+			}
+			setTimeout(() => {
+				this.tick()
+			}, 100)
+		},
+		addOn(e) {
+			this._onEvents.push(e)
+		},
+		addOff(e) {
+			this._offEvents.push(e)
 		}
-	},
-	_off() {
-		for (let e of this._offEvents) {
-			e()
-		}
-	},
-	tick() {
-		var now = new Date
-		pad = x => ("0" + parseInt(x)).substr(-2)
-
-		if (now > this.goal) this.goal.setDate(this.goal.getDate() + 1)
-
-		var remain = ((this.goal - now) / 1000),
-			h = parseInt((remain / 60 / 60) % 60),
-			m = parseInt((remain / 60) % 60),
-			s = pad(remain % 60)
-
-		if (h > 0) m = pad(m)
-
-		Elements.clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`
-		Elements.display.textContent = this.reached ? `${s}` : `${h > 0 ? `${h}:` : ''}${m > 0 ? `${m}:` : ''}${s}`
-
-		if (remain > 86340 && !this.reached) {
-			this.reached = true
-			this._on()
-		} else if (this.reached) {
-			this.reached = false
-			this._after()
-		}
-		setTimeout(() => {
-			this.tick()
-		}, 100)
-	},
-	addOn(e) {
-		this._onEvents.push(e)
-	},
-	addAfter(e) {
-		this._offEvents.push(e)
 	}
-}
 
 function rand(min, max) {
 	return Math.floor(Math.random() * (max - min)) + min;
@@ -72,7 +75,7 @@ window.onload = function () {
 	}
 
 	// default goal time
-	Papiezowa.goal.setHours(21, 37, 0)
+	Papiezowa.goal.setHours(23, 40, 0)
 
 	// default events
 	Papiezowa.addOn(function () {
@@ -83,7 +86,7 @@ window.onload = function () {
 		document.body.classList.add("rainbow")
 	})
 
-	Papiezowa.addAfter(function () {
+	Papiezowa.addOff(function () {
 		Elements.clock.style.fontSize = '5vh'
 		Elements.display.style.fontSize = '10vh'
 		document.body.classList.remove("rainbow")
