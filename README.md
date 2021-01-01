@@ -3,6 +3,8 @@
 
 Licznik do papieżowej
 
+[Facebook Page](https://www.facebook.com/iledopapiezowej)
+
 ## Promo
 > chce pozdrowić/zareklamować/ogłosić coś/kogoś na stronie
 
@@ -14,7 +16,7 @@ Coming soon
 Coming soon
 
 ## Historia wersji
-Aktualna wersja: `v1.15`
+Aktualna wersja: `v1.15.2`
 - v1.15 - urodziny Patrycji
 - v1.14 - cleanup
 - v1.13 - edycja świąteczna
