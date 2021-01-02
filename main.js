@@ -1,4 +1,4 @@
-const VERSION = 'v1.15.2'
+const VERSION = 'v1.15.3dev'
 
 var Elements = {
 	display: undefined,
@@ -25,29 +25,25 @@ var Elements = {
 			var now = new Date
 			pad = x => ("0" + parseInt(x)).substr(-2)
 
-			if (now > this.goal) this.goal.setDate(this.goal.getDate() + 1)
-
 			var remain = ((this.goal - now) / 1000),
 				h = parseInt((remain / 60 / 60) % 60),
 				m = parseInt((remain / 60) % 60),
 				s = parseInt(remain % 60)
 
 			if (h > 0) m = pad(m)
-			if ((m > 0) && (m < 23)) s = pad(s)
+			if ((h > 0) || (m > 0)) s = pad(s)
 
 			Elements.clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`
-			Elements.display.textContent = this.reached ? `${s}` : `${h > 0 ? `${h}:` : ''}${m > 0 ? `${m}:` : ''}${s}`
+			Elements.display.textContent = this.reached ? `${s}` : `${h > 0 ? `${h}:${m}:${s}`: m > 0 ? `${m}:${s}` : s}`
 
-			if (remain > 86340) {	// goal minute
+			if (remain > 86340) {	// is goal 
 				if (!this.reached) {	// is reached already?
 					this.reached = true
-					// this._on()
-					console.log(this.reached)
+					this._on()
 				}
 			} else if (this.reached) {
 				this.reached = false
-				// this._off()
-				console.log(this.reached)
+				this._off()
 			}
 			setTimeout(() => {
 				this.tick()
@@ -75,7 +71,8 @@ window.onload = function () {
 	}
 
 	// default goal time
-	Papiezowa.goal.setHours(23, 40, 0)
+	Papiezowa.goal.setHours(0, 35, 0)
+	if (new Date > Papiezowa.goal) Papiezowa.goal.setDate(Papiezowa.goal.getDate() + 1)
 
 	// default events
 	Papiezowa.addOn(function () {

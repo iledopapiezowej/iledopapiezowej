@@ -6,6 +6,7 @@ body {
 	cursor: url('media/cursor.png'), auto;
 	/* font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; */
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	font-family: 'Courier New', Courier, monospace;
 	color: white;
 	user-select: none;
 }
