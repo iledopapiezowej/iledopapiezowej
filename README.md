@@ -16,7 +16,7 @@ Coming soon
 Coming soon
 
 ## Historia wersji
-Aktualna wersja: `v1.15.2`
+Aktualna wersja: `v1.15.4`
 - v1.15 - urodziny Patrycji
 - v1.14 - cleanup
 - v1.13 - edycja świąteczna

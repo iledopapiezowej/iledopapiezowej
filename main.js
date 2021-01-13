@@ -1,4 +1,4 @@
-const VERSION = 'v1.15.3dev'
+const VERSION = 'v1.15.4'
 
 var Elements = {
 	display: undefined,
@@ -9,6 +9,7 @@ var Elements = {
 	Papiezowa = {
 		reached: false,
 		goal: new Date,
+		remain: -1,
 		_onEvents: [],
 		_offEvents: [],
 		_on() {
@@ -25,18 +26,21 @@ var Elements = {
 			var now = new Date
 			pad = x => ("0" + parseInt(x)).substr(-2)
 
-			var remain = ((this.goal - now) / 1000),
-				h = parseInt((remain / 60 / 60) % 60),
-				m = parseInt((remain / 60) % 60),
-				s = parseInt(remain % 60)
+			if (new Date > Papiezowa.goal) Papiezowa.goal.setDate(Papiezowa.goal.getDate() + 1)
+
+			this.remain = ((this.goal - now) / 1000)
+
+			var h = parseInt((this.remain / 60 / 60) % 60),
+				m = parseInt((this.remain / 60) % 60),
+				s = parseInt(this.remain % 60)
 
 			if (h > 0) m = pad(m)
 			if ((h > 0) || (m > 0)) s = pad(s)
 
 			Elements.clock.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}`
-			Elements.display.textContent = this.reached ? `${s}` : `${h > 0 ? `${h}:${m}:${s}`: m > 0 ? `${m}:${s}` : s}`
+			Elements.display.textContent = this.reached ? `${s}` : `${h > 0 ? `${h}:${m}:${s}` : m > 0 ? `${m}:${s}` : s}`
 
-			if (remain > 86340) {	// is goal 
+			if (this.remain > 86340) {	// is goal 
 				if (!this.reached) {	// is reached already?
 					this.reached = true
 					this._on()
@@ -47,7 +51,7 @@ var Elements = {
 			}
 			setTimeout(() => {
 				this.tick()
-			}, 100)
+			}, 10)
 		},
 		addOn(e) {
 			this._onEvents.push(e)
@@ -56,10 +60,6 @@ var Elements = {
 			this._offEvents.push(e)
 		}
 	}
-
-function rand(min, max) {
-	return Math.floor(Math.random() * (max - min)) + min;
-}
 
 window.onload = function () {
 
@@ -71,30 +71,30 @@ window.onload = function () {
 	}
 
 	// default goal time
-	Papiezowa.goal.setHours(0, 35, 0)
-	if (new Date > Papiezowa.goal) Papiezowa.goal.setDate(Papiezowa.goal.getDate() + 1)
+	Papiezowa.goal.setHours(21, 37, 0)
 
 	// default events
 	Papiezowa.addOn(function () {
 		Elements.audio.play()
-		Elements.audio.style.bottom = '5%'
-		Elements.clock.style.fontSize = '12vh'
-		Elements.display.style.fontSize = '3vh'
-		document.body.classList.add("rainbow")
+		document.body.classList.add("event")
+		Elements.audio.classList.add('event')
 	})
 
 	Papiezowa.addOff(function () {
-		Elements.clock.style.fontSize = '5vh'
-		Elements.display.style.fontSize = '10vh'
-		document.body.classList.remove("rainbow")
+		document.body.classList.remove("event")
 	})
 
 	// audio player settings
 	Elements.audio.volume = 0.75
 
 	Elements.audio.onpause = function () {
-		if (!Papiezowa.reached) Elements.audio.style.bottom = '-25vh'
+		if (!Papiezowa.reached) Elements.audio.classList.remove('event')
 	}
+
+	// fix time if joined in the middle
+	Papiezowa.addOn(function () {
+		Elements.audio.currentTime = (60 -(parseInt(Papiezowa.remain) - 86340))
+	})
 
 	// add 'dev' marker
 	if (VERSION.endsWith('dev')) ver.classList.add('dev')
