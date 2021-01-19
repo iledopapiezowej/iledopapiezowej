@@ -23,6 +23,7 @@
 	<meta property="twitter:image" content="https://iledopapiezowej.pl/media/thumbnail.png" />
 
 	<link rel="stylesheet" href="/style.css">
+	<link rel="stylesheet" href="/dark.css">
 	<script src="/main.js"></script>
 
 	<!-- Global site tag (gtag.js) - Google Analytics -->
@@ -39,13 +40,27 @@
 
 </head>
 
-<body>
+<body class="dark">
 	<audio controls id="audio" src="/media/barka.ogg"></audio>
-	<div id="clocks">
-		<div id="clock">--:--</div>
-		<div id="display">--:--:--</div>
+	<div id="content">
+
+		<div id="lines">
+			<div id="clock">--:--</div>
+			<div id="display">--:--:--</div>
+		</div>
+
+		<div id="eyes" class="low" data-count="2137">
+			
+		</div>
+
 	</div>
-	<div id="drawer">
+
+	<div id="drawer" class="active">
+		test
+		<div id="gear"></div>
+	</div>
+
+	<div id="footer">
 		<a href="https://github.com/Maathias/iledopapiezowej">Maathias/iledopapiezowej</a> <span id='ver'></span>
 	</div>
 	<span id="promo">

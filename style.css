@@ -3,23 +3,21 @@ body {
 	vertical-align: middle;
 	margin: 0px;
 	background-color: #f4bc8d;
+    transition: background-color .2s;
 	cursor: url('media/cursor.png'), auto;
 	/* font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; */
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
 	font-family: 'Courier New', Courier, monospace;
-	color: white;
+	color: #fefefe;
 	user-select: none;
 }
 
 ::-webkit-scrollbar {
 	width: 0px;
-	/* Remove scrollbar space */
 	background: transparent;
-	/* Optional: just make scrollbar invisible */
 }
 
-a,
-a:visited {
+a, a:visited {
 	color: #774b27;
 	text-decoration: none;
 }
@@ -59,21 +57,34 @@ a:hover {
 	width: 100%;
 }
 
-
 /* main */
 
-#clocks {
+#content {
 	height: 100vh;
+	width: 100vw;
+	position: relative;
+}
+
+#lines {
+	/* text-shadow: -2px 2px 0px hsl(27deg 82% 80%), -3px 3px 0px hsl(27deg 82% 85%), -4px 4px 0px hsl(27deg 82% 90%); */
+	/* text-shadow: 0px 0px 2px white; */
+	text-shadow:
+		0 0 2rem #fefefe,
+		.3rem .3rem 1px #fff4;
+		
+	position: absolute;
+	top: calc(50% - 7.25vh);
+	width: 100%;
 }
 
 #display {
 	font-size: 9.5vh;
-	padding-bottom: 40vh;
+	/* padding-bottom: 40vh; */
 }
 
 #clock {
 	font-size: 5vh;
-	padding-top: 40vh;
+	/* padding-top: 40vh; */
 }
 
 #audio {
@@ -85,16 +96,90 @@ a:hover {
 	bottom: -25vh;
 }
 
+/* viewers */
+
+#eyes {
+	position: absolute;
+    bottom: 1rem;
+	width: 100%;
+	transition: opacity 0.2s linear;
+}
+
+#eyes.low {
+	opacity: 0;
+}
+
+#eyes:after {
+    content: "👁️"attr(data-count);
+    padding: 0.4rem 0.5rem;
+    padding-top: 0.5rem;
+    background-color: #fff1;
+	border-radius: 30px;
+}
+
+/* drawer */
+
+#drawer {
+	height: 100vh;
+    width: calc(75vw);
+    position: fixed;
+    top: 0;
+    left: calc(-75vw);
+    background: #333;
+    transition: left .2s ease-in-out;
+}
+
+#drawer.active {
+	left: 0;
+}
+
+#gear {
+    position: absolute;
+    right: -2.5rem;
+    bottom: .5rem;
+    width: 2rem;
+    height: 2rem;
+    border: 2px solid;
+    border-radius: 4px;
+    box-sizing: border-box;
+    display: block;
+    transform: scale(var(--ggs,1));
+}
+#gear::after {
+	width: .5rem;
+    height: .5rem;
+    left: .5rem;
+    top: 0.6rem;
+    content: "";
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    border-bottom: 2px solid;
+    border-right: 2px solid;
+	transform: rotate(-45deg);
+	transition: transform .2s;
+}
+
+#drawer.active #gear::after {
+	transform: rotate(135deg);
+    left: .7rem;
+}
+
 /* during event */
+
 body.event {
 	animation: colorchange 1.1s infinite;
 }
 
-body.event > #clocks > #clock {
-	font-size: 12vh;
+body.event #lines {
+	mix-blend-mode: difference;
 }
 
-body.event > #clocks > #display {
+body.event #clock {
+	font-size: 11.5vh;
+}
+
+body.event #display {
 	font-size: 3vh;
 }
 
@@ -102,18 +187,14 @@ body.event > #clocks > #display {
 	bottom: 5%;
 }
 
-
 /* footer */
 
-#drawer {
+#footer {
 	width: 100vw;
 	height: 1em;
-	background: #f6c8a2;
+	background: #fefefe38;
 	padding: .7rem 0px;
-}
-
-#drawer:active {
-	bottom: 0;
+	font-size: 0.75rem;
 }
 
 #ver {

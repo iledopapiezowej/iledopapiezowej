@@ -1,4 +1,4 @@
-const VERSION = 'v1.15.4'
+const VERSION = 'v1.15.5dev'
 
 var Elements = {
 	display: undefined,
@@ -62,6 +62,8 @@ var Elements = {
 	}
 
 window.onload = function () {
+
+
 
 	Elements = {
 		display: document.querySelector('#display'),

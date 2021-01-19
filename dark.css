@@ -1,0 +1,8 @@
+body.dark {
+    background-color: #122140;
+}
+
+body.dark a,
+body.dark a:visited {
+	color: #fafafa;
+}
