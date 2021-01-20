@@ -1,4 +1,4 @@
-const VERSION = 'v1.15.5dev'
+const VERSION = 'v1.16.1dev'
 
 var Elements = {
 	display: undefined,
@@ -51,7 +51,7 @@ var Elements = {
 			}
 			setTimeout(() => {
 				this.tick()
-			}, 10)
+			}, 10)	// tick interval
 		},
 		addOn(e) {
 			this._onEvents.push(e)
@@ -59,31 +59,107 @@ var Elements = {
 		addOff(e) {
 			this._offEvents.push(e)
 		}
+	},
+	Settings = {
+		_values: {
+			dark: false,
+			music: true,
+			rainbow: true,
+			clock: true,
+			display: true,
+			eyes: true
+		},
+		get(id) {
+			return this._values[id]
+		},
+		set(id, value) {
+			this._values[id] = value
+			this._set(id, value)
+			this.trigger(id)
+		},
+		_get(id) {
+			return JSON.parse(localStorage[`settings-${id}`] || null)
+		},
+		_set(id, value) {
+			localStorage[`settings-${id}`] = JSON.stringify(value)
+		},
+		refresh() {
+			for (let id in this._values) {
+				let value = this._get(id)	// get value from localStorage
+				if (value !== null) this._values[id] = value	// save if exists
+				else this._set(id, this._values[id])	// set default value to localStorage
+
+				document.querySelector(`.toggle[data-for="${id}"]>input`).checked = this._values[id]	// update the checkbox
+				this.trigger(id)
+			}
+		},
+		trigger(id, value) {
+			if (typeof value == 'undefined') value = this._values[id]
+			switch (id) {
+				case 'dark':
+					if (value) document.querySelector('body').classList.add('dark')
+					else document.querySelector('body').classList.remove('dark')
+					break;
+				case 'clock':
+					if (!value) document.querySelector('#clock').classList.add('hidden')
+					else document.querySelector('#clock').classList.remove('hidden')
+					break;
+				case 'display':
+					if (!value) document.querySelector('#display').classList.add('hidden')
+					else document.querySelector('#display').classList.remove('hidden')
+					break;
+				case 'eyes':
+					if (!value) document.querySelector('#eyes').classList.add('hidden')
+					else document.querySelector('#eyes').classList.remove('hidden')
+					break;
+				case 'rainbow':
+					if (value) document.querySelector('body').classList.add('allowRainbow')
+					else document.querySelector('body').classList.remove('allowRainbow')
+					break;
+			}
+		}
+	},
+	Socket = {
+		ws: null,
+		open(){
+			this.ws = new WebSocket(`wss://${location.host}/ws/`)
+
+			this.ws.onopen = () => {
+				this.ws.send(new Date().getSeconds())
+			}
+
+			this.ws.onmessage = (e) => {
+				Elements.eyes.setAttribute('data-count', e.data)
+				if(e.data < 0) Elements.eyes.classList.add('low')
+				else Elements.eyes.classList.remove('low')
+			}
+
+		}
 	}
 
 window.onload = function () {
-
-
 
 	Elements = {
 		display: document.querySelector('#display'),
 		clock: document.querySelector('#clock'),
 		audio: document.querySelector('#audio'),
-		ver: document.querySelector('#ver')
+		ver: document.querySelector('#ver'),
+		eyes: document.querySelector('#eyes'),
 	}
 
 	// default goal time
-	Papiezowa.goal.setHours(21, 37, 0)
+	Papiezowa.goal.setHours(21, 1, 20)
 
 	// default events
 	Papiezowa.addOn(function () {
-		Elements.audio.play()
+		if(Settings.get('music')) Elements.audio.play()
 		document.body.classList.add("event")
 		Elements.audio.classList.add('event')
 	})
 
 	Papiezowa.addOff(function () {
 		document.body.classList.remove("event")
+		if(Elements.audio.paused) Elements.audio.classList.remove('event')
 	})
 
 	// audio player settings
@@ -95,8 +171,21 @@ window.onload = function () {
 
 	// fix time if joined in the middle
 	Papiezowa.addOn(function () {
-		Elements.audio.currentTime = (60 -(parseInt(Papiezowa.remain) - 86340))
+		let offset = (60 - (parseInt(Papiezowa.remain) - 86340))
+		Elements.audio.currentTime = offset < 2 ? 0 : offset
 	})
+
+	// settings
+	Settings.refresh()
+
+	// socket
+	Socket.open()
+
+	document.querySelector('#settings').onclick = function (e) {
+		if (e.target.getAttribute('type') == 'checkbox') {
+			Settings.set(e.target.parentElement.getAttribute('data-for'), e.target.checked)
+		}
+	}
 
 	// add 'dev' marker
 	if (VERSION.endsWith('dev')) ver.classList.add('dev')

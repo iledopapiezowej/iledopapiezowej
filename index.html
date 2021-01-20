@@ -41,30 +41,66 @@
 </head>
 
 <body class="dark">
-	<audio controls id="audio" src="/media/barka.ogg"></audio>
 	<div id="content">
 
 		<div id="lines">
-			<div id="clock">--:--</div>
-			<div id="display">--:--:--</div>
+			<div id="clock"></div>
+			<div id="display"></div>
 		</div>
 
-		<div id="eyes" class="low" data-count="2137">
-			
+		<audio controls id="audio" src="/media/barka.ogg"></audio>
+
+		<div id="eyes" class="hidden low" data-count="0">
+
 		</div>
 
 	</div>
 
-	<div id="drawer" class="active">
-		test
-		<div id="gear"></div>
-	</div>
+	<span id="promo">
+	</span>
 
 	<div id="footer">
 		<a href="https://github.com/Maathias/iledopapiezowej">Maathias/iledopapiezowej</a> <span id='ver'></span>
 	</div>
-	<span id="promo">
-	</span>
+
+	<div id="settings">
+		<div class="section">
+			<div class="header">Ustawienia</div>
+			<label class="toggle" data-for="dark">
+				<input type="checkbox">
+				<span>Dark Mode</span>
+			</label>
+
+			<label class="toggle" data-for="clock">
+				<input type="checkbox">
+				<span>Zegar</span>
+			</label>
+			</label>
+
+			<label class="toggle" data-for="display">
+				<input type="checkbox">
+				<span>Odliczanie</span>
+			</label>
+
+			<label class="toggle" data-for="eyes">
+				<input type="checkbox">
+				<span>Licznik odwiedzających</span>
+			</label>
+		</div>
+		<div class="section">
+			<div class="header">Event</div>
+
+			<label class="toggle" data-for="music">
+				<input type="checkbox">
+				<span>Muzyka</span>
+			</label>
+
+			<label class="toggle" data-for="rainbow">
+				<input type="checkbox">
+				<span>Agresywna Tęcza</span>
+			</label>
+		</div>
+	</div>
 </body>
 
 </html>

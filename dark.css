@@ -6,3 +6,7 @@ body.dark a,
 body.dark a:visited {
 	color: #fafafa;
 }
+
+body.dark #lines {
+	text-shadow: 0 0 32px #fefefe99, 5px 2px 1px #fff4;
+}
