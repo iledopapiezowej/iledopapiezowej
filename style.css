@@ -9,7 +9,6 @@ body {
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
 	font-family: 'Courier New', Courier, monospace;
 	color: #fefefe;
-	user-select: none;
 }
 
 ::-webkit-scrollbar {
@@ -75,22 +74,39 @@ a:hover {
 	position: absolute;
 	top: calc(50% - 7.25vh);
 	width: 100%;
+	user-select: none;
 }
 
 #lines > div {
 	transition: .15s ease-in-out;
+	/* display: none; */
 }
 
 #display {
 	font-size: 9.5vh;
+	display: none;
 	/* padding-bottom: 40vh; */
 }
 
 #clock {
-	font-size: 5vh;
+	font-size: 0;
 	display: inline-block;
 	border-bottom: 2px solid white;
+}
+
+#lines.clock > #clock{
+	font-size: 10vh;
+	display: inline-block;
     margin-bottom: 1rem;
+}
+
+#lines.clock.display > #clock{
+	font-size: 5vh;
+	display: inline-block;
+}
+
+#lines.display > #display{
+	display: block;
 }
 
 #display.hidden + #clock {
@@ -132,32 +148,32 @@ a:hover {
 
 #settings {
 	display: flex;
+	flex-wrap: wrap;
 	font-family: Helvetica, sans-serif;
+	font-size: .9rem;
 }
 
 .section {
 	text-align: left;
-	padding: 1rem;
-	width: 50%;
+	padding: 1em;
+    box-sizing: border-box;
+    flex: 1 1 50%;
 }
 
 .header {
-	margin-bottom: 1rem;
-	border-bottom: 2px solid white;
+	margin-bottom: 1em;
+	border-bottom: 2px solid #fff3;
 }
 
 .toggle {
 	display: block;
-	padding: .5rem;
+	padding: .5em;
 	cursor: pointer;
+	user-select: none;
 }
 
 .toggle:hover {
 	background-color: #fff5;
-}
-
-.toggle input[type=checkbox] {
-	/* float: right; */
 }
 
 .toggle > span {
@@ -170,11 +186,11 @@ a:hover {
 
 /* during event */
 
-body.event.allowRainbow {
+body.event.rainbow {
 	animation: colorchange 1.1s infinite;
 }
 
-body.event.allowRainbow #lines {
+body.event.rainbow #lines {
 	mix-blend-mode: difference;
 }
 

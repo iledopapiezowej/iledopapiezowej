@@ -1,4 +1,4 @@
-const VERSION = 'v1.16.1dev'
+const VERSION = 'v1.16.2'
 
 var Elements = {
 	display: undefined,
@@ -28,7 +28,7 @@ var Elements = {
 
 			if (new Date > Papiezowa.goal) Papiezowa.goal.setDate(Papiezowa.goal.getDate() + 1)
 
-			this.remain = ((this.goal - now) / 1000)
+			this.remain = ((this.goal - now + Socket.sync.offset) / 1000)
 
 			var h = parseInt((this.remain / 60 / 60) % 60),
 				m = parseInt((this.remain / 60) % 60),
@@ -101,43 +101,111 @@ var Elements = {
 					else document.querySelector('body').classList.remove('dark')
 					break;
 				case 'clock':
-					if (!value) document.querySelector('#clock').classList.add('hidden')
-					else document.querySelector('#clock').classList.remove('hidden')
+					if (value) document.querySelector('#lines').classList.add('clock')
+					else document.querySelector('#lines').classList.remove('clock')
 					break;
 				case 'display':
-					if (!value) document.querySelector('#display').classList.add('hidden')
-					else document.querySelector('#display').classList.remove('hidden')
+					if (value) document.querySelector('#lines').classList.add('display')
+					else document.querySelector('#lines').classList.remove('display')
 					break;
 				case 'eyes':
 					if (!value) document.querySelector('#eyes').classList.add('hidden')
 					else document.querySelector('#eyes').classList.remove('hidden')
 					break;
 				case 'rainbow':
-					if (value) document.querySelector('body').classList.add('allowRainbow')
-					else document.querySelector('body').classList.remove('allowRainbow')
+					if (value) document.querySelector('body').classList.add('rainbow')
+					else document.querySelector('body').classList.remove('rainbow')
 					break;
 			}
 		}
 	},
 	Socket = {
 		ws: null,
-		open(){
+		sync: {
+			begin: null,
+			end: null,
+			rtt: null,
+			ping: null,
+			diff: null,
+			offset: null
+		},
+		retries: 0,
+		send(object) {
+			if(this.ws.OPEN) return this.ws.send(JSON.stringify(object))
+		},
+		open() {
 			this.ws = new WebSocket(`wss://${location.host}/ws/`)
 
 			this.ws.onopen = () => {
-				this.ws.send(new Date().getSeconds())
+				console.info(`Socket connected`)
+			}
+
+			this.ws.onclose = () => {
+				console.info(`Socket disconnected`)
+				Elements.eyes.classList.add('low')
+				this.reopen()
 			}
 
 			this.ws.onmessage = (e) => {
-				Elements.eyes.setAttribute('data-count', e.data)
-				if(e.data < 0) Elements.eyes.classList.add('low')
-				else Elements.eyes.classList.remove('low')
+				let data = JSON.parse(e.data)
+
+				if (data.type == 'count') {
+					Elements.eyes.setAttribute('data-count', data.count)
+					if (data.count < 0) Elements.eyes.classList.add('low')
+					else Elements.eyes.classList.remove('low')
+
+				} else if (data.type == 'sync.begin') {
+					this.sync.begin = performance.now()
+					this.send({
+						type: "sync.received"
+					})
+
+				} else if (data.type == 'sync.end') {
+					this.sync.end = performance.now()
+					this.sync.rtt = this.sync.end - this.sync.begin
+					this.sync.ping = this.sync.rtt / 2
+					this.sync.diff = (Date.now() - data.time)
+					this.sync.offset = this.sync.diff - this.sync.ping
+
+					console.info(`Time synced, offset: ${this.sync.offset.toFixed(3)}ms with ping: ${this.sync.ping.toFixed(3)}`)
+					for (let i in this.sync) {
+						webLog(i, ':\t', this.sync[i].toFixed(3))
+					}
+
+				} else if (data.type == 'version') {
+					console.info('Server version:', data.version)
+					webLog('Server version: ', data.version)
+				}
+
 			}
 
+		},
+		visibility(visible){
+			this.send({
+				type: 'visibility',
+				visible: visible
+			})
+		},
+		reopen() {
+			if(this.retries > 5) {
+				console.log(`Socket stopped, too many reconnect attempts`)
+			} else setTimeout(() => {
+				console.info(`Socket attempting reconnect`)
+				this.retries++
+				this.open()
+			}, 4e3)
 		}
 	}
 
+function webLog(...data) {
+	document.querySelector('#logs').append(...data, '\n')
+}
+
 window.onload = function () {
+
+	window.document.addEventListener("visibilitychange", function(e) {
+		Socket.visibility(window.document.visibilityState === 'visible')
+	});
 
 	Elements = {
 		display: document.querySelector('#display'),
@@ -145,21 +213,22 @@ window.onload = function () {
 		audio: document.querySelector('#audio'),
 		ver: document.querySelector('#ver'),
 		eyes: document.querySelector('#eyes'),
+		server_info: document.querySelector('#server_info')
 	}
 
 	// default goal time
-	Papiezowa.goal.setHours(21, 1, 20)
+	Papiezowa.goal.setHours(21, 37, 0)
 
 	// default events
 	Papiezowa.addOn(function () {
-		if(Settings.get('music')) Elements.audio.play()
+		if (Settings.get('music')) Elements.audio.play()
 		document.body.classList.add("event")
 		Elements.audio.classList.add('event')
 	})
 
 	Papiezowa.addOff(function () {
 		document.body.classList.remove("event")
-		if(Elements.audio.paused) Elements.audio.classList.remove('event')
+		if (Elements.audio.paused) Elements.audio.classList.remove('event')
 	})
 
 	// audio player settings
