@@ -77,7 +77,7 @@ a:hover {
 	user-select: none;
 }
 
-#lines > div {
+#lines>div {
 	transition: .15s ease-in-out;
 	/* display: none; */
 }
@@ -94,32 +94,32 @@ a:hover {
 	border-bottom: 2px solid white;
 }
 
-#lines.clock > #clock{
+#lines.clock>#clock {
 	font-size: 10vh;
 	display: inline-block;
-    margin-bottom: 1rem;
+	margin-bottom: 1rem;
 }
 
-#lines.clock.display > #clock{
+#lines.clock.display>#clock {
 	font-size: 5vh;
 	display: inline-block;
 }
 
-#lines.display > #display{
+#lines.display>#display {
 	display: block;
 }
 
-#display.hidden + #clock {
+#display.hidden+#clock {
 	background-color: red;
 }
 
 #audio {
-    position: absolute;
-    transform: translateX(-50%);
-    transition: ease-in-out 0.5s;
-    bottom: 3.25rem;
-    z-index: 2;
-    left: -100vw;
+	position: absolute;
+	transform: translateX(-50%);
+	transition: ease-in-out 0.5s;
+	bottom: 3.25rem;
+	z-index: 2;
+	left: -100vw;
 }
 
 /* viewers */
@@ -136,10 +136,10 @@ a:hover {
 }
 
 #eyes:after {
-	content: "👁️"attr(data-count);
-	letter-spacing: 3px;
-	padding: 0.4rem 0.5rem;
-	padding-top: 0.5rem;
+	content: "👁️ "attr(data-count);
+	padding: 0.4em 0.5em;
+	padding-top: 0.5em;
+	padding-right: 0.6em;
 	background-color: #fff1;
 	border-radius: 30px;
 }
@@ -156,8 +156,8 @@ a:hover {
 .section {
 	text-align: left;
 	padding: 1em;
-    box-sizing: border-box;
-    flex: 1 1 50%;
+	box-sizing: border-box;
+	flex: 1 1 50%;
 }
 
 .header {
@@ -176,7 +176,7 @@ a:hover {
 	background-color: #fff5;
 }
 
-.toggle > span {
+.toggle>span {
 	color: #555;
 }
 
@@ -203,7 +203,7 @@ body.event #display {
 }
 
 #audio.event {
-    left: 50%;
+	left: 50%;
 }
 
 /* footer */
