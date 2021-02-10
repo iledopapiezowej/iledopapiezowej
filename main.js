@@ -262,5 +262,5 @@ window.onload = function () {
 	Elements.ver.textContent = VERSION
 
 	// clock tick, goal detection
-	Papiezowa.tick()
+	// Papiezowa.tick()
 }
