@@ -1,10 +1,11 @@
-const VERSION = 'v1.16.2'
+const VERSION = 'v1.17.0'
 
 var Elements = {
 	display: undefined,
 	clock: undefined,
 	audio: undefined,
-	ver: undefined
+	ver: undefined,
+	chat: undefined
 },
 	Papiezowa = {
 		reached: false,
@@ -67,7 +68,8 @@ var Elements = {
 			rainbow: true,
 			clock: true,
 			display: true,
-			eyes: true
+			eyes: true,
+			chat: true
 		},
 		get(id) {
 			return this._values[id]
@@ -116,6 +118,9 @@ var Elements = {
 					if (value) document.querySelector('body').classList.add('rainbow')
 					else document.querySelector('body').classList.remove('rainbow')
 					break;
+				case 'chat':
+					if(!value) document.querySelector('#chat').classList.add('hidden')
+					else document.querySelector('#chat').classList.remove('hidden')
 			}
 		}
 	},
@@ -138,10 +143,20 @@ var Elements = {
 
 			this.ws.onopen = () => {
 				console.info(`Socket connected`)
+				if(this.retries > 0) Chat.receive({
+					nick: 'local',
+					role: 'root',
+					content: "Połączono"
+				})
 			}
 
 			this.ws.onclose = () => {
 				console.info(`Socket disconnected`)
+				Chat.receive({
+					nick: 'local',
+					role: 'root',
+					content: "Rozłączono"
+				})
 				Elements.eyes.classList.add('low')
 				this.reopen()
 			}
@@ -151,9 +166,12 @@ var Elements = {
 
 				if (data.type == 'count') {
 					Elements.eyes.setAttribute('data-count', data.count)
+					Elements.eyes.setAttribute('title', `${data.count} osób, ${100-(data.invisible/data.count*100).toFixed()}% aktywne`)
 					if (data.count < 0) Elements.eyes.classList.add('low')
 					else Elements.eyes.classList.remove('low')
 
+				} else if (data.type == 'chat') {
+					Chat.receive(data)
 				} else if (data.type == 'sync.begin') {
 					this.sync.begin = performance.now()
 					this.send({
@@ -195,6 +213,62 @@ var Elements = {
 				this.open()
 			}, 4e3)
 		}
+	},
+	Chat = {
+		limit: 500,
+		scrollBack: 50,
+		special: {
+			papor: '<img src="/media/icon_48.png">'
+		},
+		receive(data){
+			Elements.chat.append(this._el(data))
+			if(((Elements.chat.scrollHeight - Elements.chat.clientHeight) - Elements.chat.scrollTop) < this.scrollBack)
+			Elements.chat.scrollTop = Elements.chat.scrollHeight
+			if(Elements.chat.childElementCount > this.limit){
+				Elements.chat.firstElementChild.remove()
+			}
+		},
+		send(){
+			var content = Elements.message.value
+			if(content.length<1) return
+			Elements.message.value = ''
+			Socket.send({
+				type: 'chat',
+				content: content
+			})
+		},
+		_el(data){
+			let message = document.createElement('div'),
+				nick = document.createElement('span'),
+				content = document.createElement('span'),
+				time = document.createElement('span')
+
+			let now = data.time ? new Date(data.time) : new Date(),
+			h = now.getHours(),
+			m = now.getMinutes(),
+			s = now.getSeconds()
+
+			message.classList.add('message')
+			nick.classList.add('nick')
+			nick.classList.add(data.role)
+			nick.setAttribute('title', data.id)
+			content.classList.add('content')
+			time.classList.add('time')
+			time.setAttribute('title', now)
+
+			nick.append(data.nick)
+
+			// for(let special in this.special){
+			// 	data.innerHTML = data.content.replace(`:${special}:`, this.special[special])
+			// }
+			content.textContent = data.content
+
+			time.append(`${h<10 ? '0' : ''}${h}:${m<10 ? '0' : ''}${m}:${s<10 ? '0' : ''}${s}`)
+
+			message.append(nick, content, time)
+
+			return message
+		}
 	}
 
 function webLog(...data) {
@@ -213,7 +287,9 @@ window.onload = function () {
 		audio: document.querySelector('#audio'),
 		ver: document.querySelector('#ver'),
 		eyes: document.querySelector('#eyes'),
-		server_info: document.querySelector('#server_info')
+		server_info: document.querySelector('#server_info'),
+		chat: document.querySelector('#messages'),
+		message: document.querySelector('#message')
 	}
 
 	// default goal time
@@ -255,6 +331,13 @@ window.onload = function () {
 			Settings.set(e.target.parentElement.getAttribute('data-for'), e.target.checked)
 		}
 	}
+
+	document.querySelector('#message').onkeypress = e => {
+		if(!e.shiftKey) if(e.key == 'Enter'){
+			Chat.send()
+		}
+	}
+	document.querySelector('#send').onclick = e => {Chat.send()}
 
 	// add 'dev' marker
 	if (VERSION.endsWith('dev')) ver.classList.add('dev')

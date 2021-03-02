@@ -54,6 +54,17 @@
 
 		</div>
 
+		<div id="chat" class="hidden">
+			<div id="messages">
+				
+			</div>
+
+			<div id="input">
+				<input type="text" id="message" maxlength="120" autocomplete="off" placeholder="czat">
+				<input type="button" id="send" value="➤">
+			</div>
+		</div>
+
 	</div>
 
 	<span id="promo">
@@ -66,9 +77,15 @@
 	<div id="settings">
 		<div class="section">
 			<div class="header">Ustawienia</div>
+
 			<label class="toggle" data-for="dark">
 				<input type="checkbox">
 				<span>Dark Mode 🌙</span>
+			</label>
+			
+			<label class="toggle" data-for="chat">
+				<input type="checkbox">
+				<span>Czat 💬</span>
 			</label>
 
 			<label class="toggle" data-for="clock">
@@ -86,6 +103,7 @@
 				<input type="checkbox">
 				<span>Licznik odwiedzających 👁️</span>
 			</label>
+
 		</div>
 		<div class="section">
 			<div class="header">⏳</div>
