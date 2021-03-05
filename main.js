@@ -1,4 +1,4 @@
-const VERSION = 'v1.17.0'
+const VERSION = 'v1.17.1'
 
 var Elements = {
 	display: undefined,
@@ -148,6 +148,12 @@ var Elements = {
 					role: 'root',
 					content: "Połączono"
 				})
+				Socket.visibility(window.document.visibilityState === 'visible')
+
+				// re-set nick if saved
+				if(localStorage['nick']){
+					Chat.send(`/nick ${localStorage['nick']}`)
+				}
 			}
 
 			this.ws.onclose = () => {
@@ -191,8 +197,10 @@ var Elements = {
 					}
 
 				} else if (data.type == 'version') {
-					console.info('Server version:', data.version)
 					webLog('Server version: ', data.version)
+				} else if (data.type == 'id') {
+					this.id = data.id
+					webLog('Connection ID: ', data.id)
 				}
 
 			}
@@ -228,14 +236,23 @@ var Elements = {
 				Elements.chat.firstElementChild.remove()
 			}
 		},
-		send(){
-			var content = Elements.message.value
+		send(override){
+			var content = override ? override : Elements.message.value
 			if(content.length<1) return
 			Elements.message.value = ''
 			Socket.send({
 				type: 'chat',
 				content: content
 			})
+
+			if(content.startsWith('/')){
+				let arg = content.slice(1).split(' ')
+				switch(arg[0]){
+					case 'nick':
+						localStorage['nick'] = arg[1]
+						break;
+				}
+			}
 		},
 		_el(data){
 			let message = document.createElement('div'),
@@ -256,6 +273,7 @@ var Elements = {
 			time.classList.add('time')
 			time.setAttribute('title', now)
 
+			if(data.id === Socket.id) message.classList.add('self')
 			nick.append(data.nick)
 
 			// for(let special in this.special){
@@ -272,6 +290,7 @@ var Elements = {
 	}
 
 function webLog(...data) {
+	console.log(...data)
 	document.querySelector('#logs').append(...data, '\n')
 }
 
