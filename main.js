@@ -224,7 +224,7 @@ var Elements = {
 	},
 	Chat = {
 		limit: 500,
-		scrollBack: 50,
+		scrollBack: 350,
 		special: {
 			papor: '<img src="/media/icon_48.png">'
 		},
