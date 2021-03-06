@@ -25,6 +25,10 @@ a:hover {
 	text-decoration: underline;
 }
 
+.message a {
+	text-decoration: underline;
+}
+
 @keyframes colorchange {
 	0% {
 		background: red;

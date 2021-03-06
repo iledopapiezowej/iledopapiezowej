@@ -279,7 +279,9 @@ var Elements = {
 			// for(let special in this.special){
 			// 	data.innerHTML = data.content.replace(`:${special}:`, this.special[special])
 			// }
-			content.textContent = data.content
+			if(data.role =='owner' && data.content.startsWith('\\')){
+				content.innerHTML = data.content
+			} else content.textContent = data.content
 
 			time.append(`${h<10 ? '0' : ''}${h}:${m<10 ? '0' : ''}${m}:${s<10 ? '0' : ''}${s}`)
 
