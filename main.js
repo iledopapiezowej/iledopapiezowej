@@ -152,7 +152,14 @@ var Elements = {
 
 				// re-set nick if saved
 				if(localStorage['nick']){
+					if(localStorage['nick'] != 'undefined')
 					Chat.send(`/nick ${localStorage['nick']}`)
+				}
+
+				// re-set nick if saved
+				if(localStorage['login']){
+					if(localStorage['login'] != 'undefined undefined')
+					Chat.send(`/login ${localStorage['login']}`)
 				}
 			}
 
@@ -240,10 +247,6 @@ var Elements = {
 			var content = override ? override : Elements.message.value
 			if(content.length<1) return
 			Elements.message.value = ''
-			Socket.send({
-				type: 'chat',
-				content: content
-			})
 
 			if(content.startsWith('/')){
 				let arg = content.slice(1).split(' ')
@@ -251,8 +254,24 @@ var Elements = {
 					case 'nick':
 						localStorage['nick'] = arg[1]
 						break;
+					case 'login':
+						localStorage['login'] = `${arg[1]} ${arg[2]}`
+						break;
+					case 'autoban':
+						document.querySelector('#messages').onclick = function(e){
+							if(e.target.classList.contains('nick'))
+							Chat.send('/ban ' + e.target.getAttribute('title'))
+						}
+						return
+						break;
 				}
 			}
+
+			Socket.send({
+				type: 'chat',
+				content: content
+			})
+
 		},
 		_el(data){
 			let message = document.createElement('div'),
