@@ -177,37 +177,41 @@ var Elements = {
 			this.ws.onmessage = (e) => {
 				let data = JSON.parse(e.data)
 
-				if (data.type == 'count') {
-					Elements.eyes.setAttribute('data-count', data.count)
-					Elements.eyes.setAttribute('title', `${data.count} osób, ${100-(data.invisible/data.count*100).toFixed()}% aktywne`)
-					if (data.count < 0) Elements.eyes.classList.add('low')
-					else Elements.eyes.classList.remove('low')
+				if (!Array.isArray(data)) data = [data]
 
-				} else if (data.type == 'chat') {
-					Chat.receive(data)
-				} else if (data.type == 'sync.begin') {
-					this.sync.begin = performance.now()
-					this.send({
-						type: "sync.received"
-					})
+				for (let chunk of data) {
+					if (chunk.type == 'count') {
+						Elements.eyes.setAttribute('data-count', chunk.count)
+						Elements.eyes.setAttribute('title', `${chunk.count} osób, ${100 - (chunk.invisible / chunk.count * 100).toFixed()}% aktywne`)
+						if (chunk.count < 0) Elements.eyes.classList.add('low')
+						else Elements.eyes.classList.remove('low')
 
-				} else if (data.type == 'sync.end') {
-					this.sync.end = performance.now()
-					this.sync.rtt = this.sync.end - this.sync.begin
-					this.sync.ping = this.sync.rtt / 2
-					this.sync.diff = (Date.now() - data.time)
-					this.sync.offset = this.sync.diff - this.sync.ping
+					} else if (chunk.type == 'chat') {
+						Chat.receive(chunk)
+					} else if (chunk.type == 'sync.begin') {
+						this.sync.begin = performance.now()
+						this.send({
+							type: "sync.received"
+						})
 
-					console.info(`Time synced, offset: ${this.sync.offset.toFixed(3)}ms with ping: ${this.sync.ping.toFixed(3)}`)
-					for (let i in this.sync) {
-						webLog(i, ':\t', this.sync[i].toFixed(3))
+					} else if (chunk.type == 'sync.end') {
+						this.sync.end = performance.now()
+						this.sync.rtt = this.sync.end - this.sync.begin
+						this.sync.ping = this.sync.rtt / 2
+						this.sync.diff = (Date.now() - chunk.time)
+						this.sync.offset = this.sync.diff - this.sync.ping
+
+						console.info(`Time synced, offset: ${this.sync.offset.toFixed(3)}ms with ping: ${this.sync.ping.toFixed(3)}`)
+						for (let i in this.sync) {
+							webLog(i, ':\t', this.sync[i].toFixed(3))
+						}
+
+					} else if (chunk.type == 'version') {
+						webLog('Server version: ', chunk.version)
+					} else if (chunk.type == 'id') {
+						this.id = chunk.id
+						webLog('Connection ID: ', chunk.id)
 					}
-
-				} else if (data.type == 'version') {
-					webLog('Server version: ', data.version)
-				} else if (data.type == 'id') {
-					this.id = data.id
-					webLog('Connection ID: ', data.id)
 				}
 
 			}
