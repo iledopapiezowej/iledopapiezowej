@@ -314,7 +314,7 @@ a:hover {
 /* during event */
 
 body.event.rainbow {
-	animation: colorchange 1.1s infinite;
+	animation: colorchange 15s infinite;
 }
 
 body.event.rainbow #lines {
