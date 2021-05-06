@@ -1,0 +1,49 @@
+
+.settings .label {
+	display: block;
+	padding: .3em .5em;
+	user-select: none;
+}
+
+.settings .toggle {
+	opacity: .6;
+	cursor: pointer;
+	transition: opacity .2s;
+	padding-bottom: .5em;
+}
+
+.settings .toggle.checked {
+	opacity: initial;
+}
+
+.settings .toggle:hover {
+	opacity: .8;
+}
+
+.settings .label .desc {
+	font-size: 0.9em;
+	color: hsl(0, 0%, 50%);
+	padding-left: .5em;
+	border-left: 1px solid hsl(0, 0%, 70%);
+	margin-left: .5em;
+}
+
+.settings .label.field {
+	padding: 0;
+	margin-bottom: 1em;
+    background-color: inherit;
+	white-space: break-spaces;
+}
+
+.settings .label.field .header {
+    border: none;
+    background-color: inherit;
+    margin-left: 1em;
+    padding: 0 0.5em;
+}
+
+.settings .label.field .content {
+    border: 1px solid hsl(214, 9%, 85%);
+    padding: .5em;
+    margin-top: -.5em;
+}

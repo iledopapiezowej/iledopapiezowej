@@ -1,0 +1,128 @@
+.settings h1, .settings h2 {
+	padding: 0.5em 0.5em 0.2em;
+	margin: 0 0.5em 0.5em;
+	text-align: left;
+	border-bottom: 1px solid #fefefeaa;
+}
+
+.settings .section {
+	text-align: left;
+	padding: 1em;
+	margin: .5em;
+	background-color: hsl(0deg 0% 97%);
+	box-sizing: border-box;
+	flex: 1 1 50%;
+	border-radius: 3px;
+}
+
+.settings .header {
+	margin-bottom: 1em;
+	border-bottom: 2px solid #fff3;
+	text-transform: uppercase;
+    font-size: 80%;
+	font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.settings > .content {
+	display: flex;
+}
+
+.settings > .content .categories {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: stretch;
+	min-width: 10em;
+	margin: .5em;
+	margin-right: 0;
+	border-right: 1px solid #fefefe33;
+    padding-right: .5em;
+}
+
+.settings > .content .categories .tab {
+	background-color: #fefefebb;
+	padding: 0.5em 1em;
+	margin-bottom: .5em;
+	cursor: pointer;
+	border-style: solid;
+	border-color: #3b4046;
+	border-width: 0px;
+}
+
+.settings > .content .categories .tab:hover {
+	border-left-width: 1px;
+	border-right: 1px solid transparent !important;
+}
+
+.settings > .content .categories .tab.active {
+	border-left-width: 3px;
+	border-right: 3px solid transparent !important;
+}
+
+.settings > .content .category {
+	width: 100%;
+	display: none;
+}
+
+.settings .category h2 {
+	display: none;
+}
+
+.settings > .content .category.active {
+	display: initial;
+}
+
+@media screen and (max-width: 768px) {
+	.settings .content {
+		flex-direction: column;
+	}
+	.settings .content .categories {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		margin: .5em;
+		margin-bottom: 0;
+		/* width: auto; */
+		display: none;
+	}
+	.settings .content .categories .tab {
+		border-left: none;
+		margin: 0 .5em .5em 0;
+		width: calc(33% - .5em);
+		box-sizing: border-box;
+	}
+	.settings .label .desc {
+		display: block;
+    	border: none !important;
+	}
+	.settings .content .categories .tab:hover {
+		border-bottom-width: 1px;
+	}
+	.settings .content .categories .tab.active {
+		border-bottom: 3px solid #3b4046;
+	}
+	.settings .content .category{
+		display: initial;
+	}
+	.settings .category h2 {
+		display: inherit;
+	}
+}
+
+/* ///////// */
+
+/* Dark Mode */
+
+.settings .header {
+	border-color: #d5d8dc;
+}
+
+.wrapper.dark .settings .content .categories .tab {
+	background-color: #fefefe20;
+	border-color: #fefefe;
+}
+
+.wrapper.dark .settings .section {
+	background-color: hsl(0, 1%, 26%);
+}

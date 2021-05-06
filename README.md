@@ -1,5 +1,5 @@
 # Ile do papieżowej?
-<img align="center" src="media/icon_256.png" alt="papież">
+<img align="center" src="public/media/icon_256.png" alt="papież">
 
 Licznik do papieżowej
 
@@ -18,6 +18,5 @@ Coming soon
 ## Historia wersji
 Aktualna wersja: `v1.15.4`
 - v1.16 - synchronizacja czasu, ustawienia, serwer
-- v1.15 - urodziny Patrycji
 - v1.14 - cleanup
 - v1.13 - edycja świąteczna

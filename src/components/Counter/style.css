@@ -1,0 +1,36 @@
+.lines {
+	text-shadow: 0 0 32px #fefefe, 5px 2px 1px #fff4;
+	position: absolute;
+	top: calc(50% - 7.25vh);
+	left: 0;
+	right: 0;
+	user-select: none;
+	font-family: 'Courier New', Courier, monospace;
+}
+
+.lines>div {
+	transition: .15s ease-in-out;
+}
+
+.lines .display {
+	font-size: 0;
+}
+
+.lines .clock {
+	font-size: 0;
+	display: inline-block;
+	border-bottom: 2px solid white;
+}
+
+.lines.clock>.clock {
+	font-size: 10vh;
+	margin-bottom: 1rem;
+}
+
+.lines.clock.display>.clock {
+	font-size: 5vh;
+}
+
+.lines.display>.display {
+	font-size: 8.5vh;
+}
