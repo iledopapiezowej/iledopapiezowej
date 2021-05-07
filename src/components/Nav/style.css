@@ -1,0 +1,92 @@
+nav {
+    /* padding: 0.3em; */
+    box-sizing: border-box;
+    z-index: 10;
+    text-align: right;
+    height: 2em;
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    flex-direction: row;
+}
+
+nav > span {
+    display: none;
+}
+
+nav .link {
+    display: inline-block;
+    padding: 0.3em .6em;
+    margin: 0 .25em;
+    cursor: pointer;
+    border-bottom: 0px solid #3b4046;
+    box-sizing: border-box;
+    height: inherit;
+    width: 100%;
+    text-align: center;
+}
+
+nav .link.active {
+    border-width: 2px;
+}
+
+nav .link:hover{
+    /* border-width: 1px; */
+    background: #fefefe66;
+    text-decoration: none;
+}
+
+nav a:hover{
+    text-decoration: none;
+}
+
+nav > .list{
+    position: relative;
+}
+
+nav > .list > .subs {
+    display: none;
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    left: 0;
+    text-align: left;
+    /* background-color: inherit; */
+    /* padding: inherit; */
+}
+
+@media screen and (min-width: 990px) {
+    nav .link {
+        width: auto;
+    }
+
+    nav > span {
+        display: inline-block;
+        margin-left: auto;
+        margin-right: .5em;
+    }
+}
+
+nav > .list > .subs > .link {
+    width: 100%;
+    margin: 0;
+    padding: .3em 1em;
+}
+
+nav > .list > .subs > .link:hover {
+    margin: 0;
+    padding: .3em 1em;
+    border-width: 0px;
+}
+
+nav > .list:hover > .subs {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ///////// */
+/* Dark Mode */
+
+.wrapper.dark nav .link {
+    border-color: #e8e8e8;
+}

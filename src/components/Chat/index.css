@@ -1,0 +1,147 @@
+.container .chat{
+    padding: 1em;
+    box-sizing: border-box;
+    /* font-family: Helvetica, sans-serif; */
+	/* font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+	display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+	height: 100%;
+}
+
+.messages{
+	overflow-y: auto;
+	padding-bottom: 2em;
+}
+
+.message:last-child{
+	border-bottom: 2px solid white;
+	/* animation: appear .1s; */
+	/* box-shadow: inset 0px -8px 8px -8px #fff2 */
+}
+
+@keyframes appear {
+	0% {
+		height: 0px;
+		opacity: 0;
+	}
+
+	100% {
+		height: 1.3em;
+		opacity: 1;
+	}
+}
+
+.message {
+	overflow: hidden;
+	text-align: left;
+    position: relative;
+    border-bottom: 1px solid #ffffff17;
+    padding: 0.1em 0;
+	scroll-margin: -3em;
+}
+
+.message.self {
+	border-left: 2px solid #3b4046;
+}
+
+.nick {
+	font-size: 0.7rem;
+	width: 5rem;
+	text-align: right;
+	display: inline-block;
+	font-style: italic;
+	margin-right: .3em;
+    font-family: monospace;
+}
+
+.nick:after{
+	content: ": ";
+}
+
+.time{
+	font-size: 0.6rem;
+    position: absolute;
+    right: .5em;
+    top: .2em;
+}
+
+.message .content {
+    display: inline-block;
+    width: calc(100% - 8rem);
+	overflow-wrap: break-word;
+}
+
+/* input */
+
+.input {
+    bottom: 1em;
+	display: flex;
+}
+
+.input .message {
+	width: 100%;
+}
+
+.input .message::placeholder{
+	color: #3b404699;
+}
+
+.input .send {
+	padding: 0 1em;
+	cursor: pointer;
+}
+
+.input .send svg{
+	height: 2em;
+}
+
+.input svg.down {
+	padding: 0 0.5em;
+    height: 100%;
+	cursor: pointer;
+}
+
+.input > *{
+	border:none;
+    background-image:none;
+    background-color:transparent;
+    box-shadow: none;
+	border-radius: 0;
+	background-color: #fefefe10;
+	padding: 0.6em 0.5em;
+    color: #3b4046;
+	box-sizing: border-box;
+	height: 2em;
+}
+
+.input > *:hover{
+	background-color: #3b404609;
+}
+
+/* @media (max-width: 65em) {
+
+	.input {
+		position: static;
+		width: 100%;
+	}
+
+	.chat {
+		height: 41%;
+		width: 100%;
+		min-width: unset;
+	}
+	
+} */
+
+/* ///////// */
+/* Dark Mode */
+
+.wrapper.dark .input > *{
+	color: #e8e8e8e8;
+}
+
+.wrapper.dark .input .message::placeholder{
+	color: #e8e8e888;
+}

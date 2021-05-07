@@ -1,0 +1,38 @@
+.toggle svg{
+    stroke: #292828;
+    height: 1.5em;
+    float: left;
+    width: auto;
+    /* padding: 0 0.3em; */
+    margin-right: 0.4em;
+    stroke-width: 2px;
+}
+
+.toggle:hover svg polyline,
+.toggle svg:hover polyline{
+    transform: rotate(14deg);
+}
+
+.toggle:active svg polyline,
+.toggle svg:active polyline{
+    stroke-width: inherit;
+    opacity: .5;
+    transform: rotate(-14deg);
+}
+
+.toggle svg.checked polyline{
+    stroke-width: inherit;
+}
+
+.toggle svg polyline{
+    transform-origin: center;
+    transition-duration: .2s;
+    stroke-width: 0px;
+}
+
+/* ///////// */
+/* Dark Mode */
+
+.wrapper.dark .toggle svg {
+    stroke: #fefefe
+}

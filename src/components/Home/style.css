@@ -1,0 +1,120 @@
+.message a {
+	text-decoration: underline;
+}
+
+@keyframes colorchange {
+	0% {
+		background: red;
+	}
+	15% {
+		background: yellow;
+	}
+	30% {
+		background: turquoise;
+	}
+	45% {
+		background: lime;
+	}
+	60% {
+		background: crimson;
+	}
+	85% {
+		background: aqua;
+	}
+	100% {
+		background: deeppink;
+	}
+}
+/* main */
+
+.container+.container{
+	display: none;
+}
+
+.home > div {
+	width: 100%;
+	height: 100%;
+}
+
+.home .audio {
+	position: absolute;
+	transform: translateX(-50%);
+	transition: ease-in-out 0.2s;
+	z-index: 2;
+	top: calc(50% + 20vh);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.copyright {
+    position: absolute;
+    bottom: .1rem;
+    left: .2rem;
+    font-size: .8rem;
+    opacity: .5;
+}
+
+/* chat */
+
+.home .chat {
+    height: 40%;
+}
+
+@media (min-width: 90em) {
+
+	.home .chat {
+		width: 35vw;
+		float: right;
+		height: 100%;
+	}
+	
+}
+
+/* during event */
+
+.event.rainbow {
+	animation: colorchange 2s infinite;
+}
+
+.event.rainbow .lines {
+	mix-blend-mode: difference;
+}
+
+.event .lines.clock>.clock {
+	font-size: 11.5vh;
+}
+
+.event .display {
+	font-size: 3vh !important;
+}
+
+.audio[data-playing="true"],
+.event .audio{
+	opacity: 1 !important;
+	pointer-events: all !important;
+}
+
+/* footer */
+
+/* #footer {
+	width: 100%;
+	height: 1em;
+	background: #fefefe38;
+	padding: .7rem 0px;
+	font-size: 0.75rem;
+}
+
+#ver {
+	font-size: .6rem;
+	padding: 4px 5px;
+	border-radius: 4px;
+}
+
+#ver.dev {
+	background-color: #af3517;
+}
+
+#ver.stable {
+	background-color: #f1e7e7;
+	color: #1b0c0c;
+} */

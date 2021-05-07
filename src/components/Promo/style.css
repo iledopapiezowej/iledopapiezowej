@@ -1,0 +1,102 @@
+.promo {
+	position: absolute;
+	bottom: 2.5rem;
+	left: 0;
+	right: 0;
+	width: clamp(18em, 50%, 25em);
+	height: 2em;
+	margin: auto;
+	text-align: left;
+	padding: .4em;
+	background-color: #3b4046;
+	color: #e8e8e8;
+	overflow: hidden;
+	cursor: pointer;
+	box-shadow: 0px 0px 7px 3px #0001;
+	border-radius: 3px;
+}
+
+.promo .header {
+	font-size: 1em;
+	line-height: 2;
+	font-weight: bold;
+	/* text-align: center; */
+	width: 100%;
+	display: block;
+}
+
+.promo .sub {
+	float: left;
+	font-style: italic;
+	font-size: .9em;
+	color: hsl(213deg 9% 75%);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.promo .content {
+	text-align: center;
+	margin-top: .5em;
+	border-top: 1px solid #fefefe10;
+    padding-top: .5em;
+}
+
+.header .icon {
+	height: 1.8em;
+	width: auto;
+	float: right;
+	stroke: #fefefeaa;
+	cursor: pointer;
+}
+
+.promo>.thumb {
+	height: 2em;
+	float: left;
+	margin-right: .75em;
+	border-radius: 4px;
+}
+
+.promo, .promo>.content, .promo>.thumb, .promo>.sub {
+	transition-duration: .3s;
+}
+
+/* promo open */
+
+.promo.open {
+	cursor: default;
+	height: clamp(7em, 7.5em, 15em);
+}
+
+.promo.open>.thumb {
+	height: 3.5em;
+}
+
+.promo.open .sub{
+	opacity: 1;
+	pointer-events: all;
+}
+
+/* .promo.open>.header {
+} */
+
+/* promo closed */
+
+/* .promo.closed:not(.open) {
+	opacity: .5;
+} */
+
+/* ///////// */
+/* Dark Mode */
+
+.wrapper.dark .promo {
+	background-color: #fefefe;
+	color: #3b4046;
+}
+
+.wrapper.dark .promo .icon {
+	stroke: #3b4046;
+}
+
+.wrapper.dark .promo .sub {
+	color: hsl(213deg 9% 35%);
+}

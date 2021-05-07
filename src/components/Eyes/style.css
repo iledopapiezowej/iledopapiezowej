@@ -1,0 +1,22 @@
+.eyes {
+	position: absolute;
+	top: calc(50% + 15vh);
+	left: 0;
+	right: 0;
+	/* width: 100%; */
+	transition: opacity 0.2s linear;
+	font-family: 'Courier New', Courier, monospace;
+}
+
+.eyes.low {
+	opacity: 0;
+}
+
+.eyes:after {
+	content: "👁️ "attr(data-count);
+	padding: 0.4em 0.5em;
+	padding-top: 0.5em;
+	padding-right: 0.6em;
+	background-color: #fff1;
+	border-radius: 30px;
+}

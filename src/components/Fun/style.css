@@ -1,0 +1,33 @@
+.fun .path {
+    display: flex;
+    align-items: flex-start;
+    padding: .5em;
+	margin: 0 .5em;
+	border-bottom: 1px solid #fefefeaa;
+}
+
+.fun .path .spacer {
+    padding: 0 .5em;
+}
+
+.fun .el {
+    border-bottom: 1px solid #fefefebb;
+    height: 4em;
+    padding: 1em;
+    margin: .5em;
+    text-align: left;
+    background: #fefefe10;
+    display: block;
+}
+
+.fun .el img {
+    height: 100%;
+    float: left;
+    margin-right: 1em;
+    border-radius: .5em;
+}
+
+.el .header {
+    font-size: 1.2em;
+    font-weight: bold;
+}
