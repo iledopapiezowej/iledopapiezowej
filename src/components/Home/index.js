@@ -8,6 +8,8 @@ import Promo from '../Promo';
 
 import pkg from '../../../package.json'
 
+import GaContext from '../../contexts/Ga'
+
 import './style.css';
 
 class Home extends React.Component {
@@ -61,13 +63,37 @@ class Home extends React.Component {
           this.props.values.rainbow ? 'rainbow' : ''
         ].join(' ')}>
 
-        <Counter
-          doClock={this.props.settings.clock}
-          doDisplay={this.props.settings.display}
-          onEventStart={(elapsed) => { this.eventStart(elapsed) }}
-          onEventEnd={() => { this.eventEnd() }}
-          sync={this.props.sync}
-        />
+        <GaContext.Consumer>{
+          ga => {
+            return (
+              <Counter
+                doClock={this.props.settings.clock}
+                doDisplay={this.props.settings.display}
+                onEventStart={(elapsed) => {
+                  console.log(elapsed)
+                  this.eventStart(elapsed)
+                  ga.event({
+                    category: '2137',
+                    action: 'Event Start',
+                    label: `${elapsed}s late`,
+                    value: elapsed,
+                    nonInteraction: true
+                  })
+                }}
+                onEventEnd={() => {
+                  this.eventEnd()
+                  ga.event({
+                    category: '2137',
+                    action: 'Event End',
+                    nonInteraction: true
+                  })
+                }}
+                sync={this.props.sync}
+              />
+            )
+          }}
+        </GaContext.Consumer>
+
 
         <Player
           elapsed={this.state.elapsed}
@@ -89,10 +115,6 @@ class Home extends React.Component {
 
         <Promo
           {...this.state.promo}
-          // hidden={this.state.promo.hidden}
-          // thumb="/media/dc_64.jpg"
-          // link="https://discord.gg/EDTKaMm6JU"
-          // content="Zapraszamy na nasz oficjalny serwer Discord"
         />
         <div className="clear"></div>
 

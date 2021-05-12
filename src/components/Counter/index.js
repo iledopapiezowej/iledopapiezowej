@@ -62,7 +62,7 @@ class Counter extends React.Component {
 
     on() {
         if (typeof this.props.onEventStart == 'function')
-            this.props.onEventStart((60 - (parseInt(this.remain) - 86340)))
+            this.props.onEventStart((60 - (parseInt(this.remain) - 86339)))
     }
 
     off() {

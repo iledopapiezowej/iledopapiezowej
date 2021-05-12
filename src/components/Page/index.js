@@ -22,30 +22,32 @@ class Page extends React.Component {
         document.title = this.props.suffix
     }
 
-    componentDidUpdate() {
-        // console.log('update')
-        if (this.props.title.length > 0) {
-            this._set()
-        } else {
-            // this._clear()
-        }
-    }
+    // componentDidUpdate() {
+    //     // console.log('update')
+    //     if (this.props.title.length > 0) {
+    //         this._set()
+    //     } else {
+    //         // this._clear()
+    //     }
+    // }
 
-    componentDidMount() {
-        // console.log('mount')
-        if (this.props.title.length > 0) {
-            this._set()
-        } else {
-            this._clear()
-        }
-    }
+    // componentDidMount() {
+    //     // console.log('mount')
+    //     if (this.props.title.length > 0) {
+    //         this._set()
+    //     } else {
+    //         this._clear()
+    //     }
+    // }
 
-    componentWillUnmount() {
-        // console.log('unmount')
-        this._clear()
-    }
+    // componentWillUnmount() {
+    //     // console.log('unmount')
+    //     this._clear()
+    // }
 
     render() {
+
+        // console.log(this.props.id)
 
         return (
             <div className={`container ${this.props.id}`}>

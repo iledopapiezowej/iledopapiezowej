@@ -2,8 +2,9 @@ import React from 'react'
 import {
     BrowserRouter as Router,
     Switch,
-    Route
+    Route,
 } from "react-router-dom";
+import ga from 'react-ga';
 
 import Socket from '../../Socket'
 import { addListener, addStateListener, triggerEvent } from '../../Listener'
@@ -14,16 +15,18 @@ import Chat from '../Chat'
 import Page from '../Page'
 import {
     Fun,
-    // Sub as SubFun
 } from '../Fun'
-
 import {
     Settings,
     categories
 } from '../Settings'
 
+import GaContext from '../../contexts/Ga'
+
 import './style.css'
 import './dark.css';
+
+ga.initialize('UA-150749288-2')
 
 class Main extends React.Component {
     constructor(props) {
@@ -42,13 +45,13 @@ class Main extends React.Component {
         for (let category of categories) {
             for (let section of category.sections) {
                 for (let label of section.labels) {
-                    if(!label.default) continue
+                    if (!label.default) continue
 
                     let value = localStorage[`settings-${label.id}`],
                         out = label.default
-                    try{
+                    try {
                         out = JSON.parse(value || label.default)
-                    }catch(err){
+                    } catch (err) {
                         console.error(label, err)
                     }
                     this.settings.values[label.id] = out
@@ -70,7 +73,19 @@ class Main extends React.Component {
 
         this.socket = new Socket({
             onCount: data => { this.setState({ count: data.count, invisible: data.invisible }) },
-            onSync: data => { this.setState({ sync: data }) },
+            onSync: data => {
+                this.setState({ sync: data })
+                ga.timing({
+                    category: 'Socket',
+                    variable: 'ping',
+                    value: data.ping
+                })
+                ga.timing({
+                    category: 'Socket',
+                    variable: 'offset',
+                    value: data.offset
+                })
+            },
             // onVersion: data => { this.setState({ stats: data }) }
         })
 
@@ -85,89 +100,111 @@ class Main extends React.Component {
     render() {
 
         return (
-            <Router>
-                <div className={[
-                    'wrapper',
-                    this.state.settings.dark ? 'dark' : ''
-                ].join(' ')}>
+            <GaContext.Provider value={ga}>
+                <Router>
+                    <div className={[
+                        'wrapper',
+                        this.state.settings.dark ? 'dark' : ''
+                    ].join(' ')}>
 
-                    <Nav
-                        links={[
-                            { to: '/', header: 'Home' },
-                            { to: '/czat', header: 'Czat' },
-                            { to: '/4fun', header: '4Fun' },
-                            { to: '/ustawienia', header: 'Ustawienia' }
-                        ]}
-                    />
-
-                    <Switch>
-                        <Route path="/czat">
-                            <Page id="chat" title="Czat">
-                                <Chat
-                                    // messages={this.socket.chat.messages}
-                                    socket={this.socket}
-                                    latest={this.socket.latest}
-                                />
-                            </Page>
-
-                        </Route>
-
-                        <Route path="/ustawienia">
-                            <Page id="settings" title="Ustawienia">
-                                <Settings
-                                    values={this.state.settings}
-                                    sync={this.state.sync}
-                                    update={(id, value) => {
-                                        this.settings.set(id, value)
-                                    }}
-                                />
-                            </Page>
-
-                        </Route>
-
-                        <Route path="/4fun">
-                            <Page id="fun" title="4Fun">
-                                <Fun>
-                                    <div
-                                        id="clicker"
-                                        key="/clicker"
-                                        header="Clicker"
-                                        desc="Klikaj papieża"
-                                        img="/media/clicker_256.png"
-                                    >
-                                        <h1>Coming soon</h1>
-                                    </div>
-
-                                    <div
-                                        id="place"
-                                        key="/place"
-                                        header="Place"
-                                        desc="Stawiaj pojedyncze pixele, aby stworzyć wspólny obraz"
-                                        img="/media/pixel_pap.png"
-                                    >
-                                        <h1>Coming soon</h1>
-                                    </div>
-
-                                </Fun>
-
-                            </Page>
-
-                        </Route>
-
-                    </Switch>
-
-                    <Page id="home">
-                        <Home
-                            settings={this.state.settings}
-                            count={this.state.count}
-                            invisible={this.state.invisible}
-                            values={this.state.settings}
-                            sync={this.state.sync}
-                            socket={this.socket}
+                        <Nav
+                            links={[
+                                { to: '/', header: 'Home' },
+                                { to: '/czat', header: 'Czat' },
+                                { to: '/4fun', header: '4Fun' },
+                                { to: '/ustawienia', header: 'Ustawienia' }
+                            ]}
+                            ga={ga}
+                            titles={
+                                {
+                                    '': {
+                                        '': '',
+                                        'czat': 'Czat',
+                                        'ustawienia': 'Ustawienia',
+                                        '4fun': {
+                                            '': '4Fun',
+                                            'clicker': "Clicker",
+                                            'place': "Place"
+                                        }
+                                    }
+                                }
+                            }
                         />
-                    </Page>
-                </div>
-            </Router>
+
+                        <Switch>
+                            <Route path="/czat">
+                                <Page id="chat" title="Czat">
+                                    <Chat
+                                        // messages={this.socket.chat.messages}
+                                        socket={this.socket}
+                                        latest={this.socket.latest}
+                                    />
+                                </Page>
+
+                            </Route>
+
+                            <Route path="/ustawienia">
+                                <Page id="settings" title="Ustawienia">
+                                    <Settings
+                                        values={this.state.settings}
+                                        sync={this.state.sync}
+                                        update={(id, value) => {
+                                            this.settings.set(id, value)
+                                            ga.event({
+                                                category: 'Settings',
+                                                action: 'Settings Changed',
+                                                label: `${id}: ${value}`,
+                                            })
+                                        }}
+                                    />
+                                </Page>
+
+                            </Route>
+
+                            <Route path="/4fun">
+                                <Page id="fun" title="4Fun">
+                                    <Fun>
+                                        <div
+                                            id="clicker"
+                                            key="/clicker"
+                                            header="Clicker"
+                                            desc="Klikaj papieża"
+                                            img="/media/clicker_256.png"
+                                        >
+                                            <h1>Coming soon</h1>
+                                        </div>
+
+                                        <div
+                                            id="place"
+                                            key="/place"
+                                            header="Place"
+                                            desc="Stawiaj pojedyncze pixele, aby stworzyć wspólny obraz"
+                                            img="/media/pixel_pap.png"
+                                        >
+                                            <h1>Coming soon</h1>
+                                        </div>
+
+                                    </Fun>
+
+                                </Page>
+
+                            </Route>
+
+                        </Switch>
+
+                        <Page id="home">
+                            <Home
+                                settings={this.state.settings}
+                                count={this.state.count}
+                                invisible={this.state.invisible}
+                                values={this.state.settings}
+                                sync={this.state.sync}
+                                socket={this.socket}
+                            />
+                        </Page>
+                    </div>
+                </Router>
+            </GaContext.Provider>
         )
     }
 }
