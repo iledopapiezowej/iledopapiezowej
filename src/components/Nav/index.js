@@ -24,7 +24,7 @@ function Nav(props) {
         },
         pathname = location.pathname,
         title = get(props.titles, pathname.split('/')),
-        suffix = 'Iledopapiezowej.pl ⏳'
+        suffix = 'Ile do papieżowej? ⏳'
 
         document.title = title ? (title + ' | ' + suffix) : suffix
         ga.pageview(pathname)
