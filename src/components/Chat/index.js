@@ -53,7 +53,6 @@ class Message extends React.Component {
 class Chat extends React.Component {
     static defaultProps = {
         show: true,
-        socket: {},
         messageLimit: 300
     }
 
@@ -61,7 +60,7 @@ class Chat extends React.Component {
         super(props)
         this.state = {
             nick: 'nickname',
-            messages: props.latest.map(chunk => this._parse(chunk)),
+            messages: props.socket.latest.map(chunk => this._parse(chunk)),
             input: '',
             autoscroll: true
         }
@@ -96,6 +95,11 @@ class Chat extends React.Component {
             messages: next
         })
 
+        this.newMessage = true
+
+        if (this.state.autoscroll)
+            this.scroll()
+
     }
 
     send() {
@@ -108,19 +112,27 @@ class Chat extends React.Component {
             content: content
         })
 
-        this.refs.message.value = ''
+        this.refs.input.value = ''
+    }
+
+    scroll() {
+        if (this.refs.list) {
+            if (this.refs.list.lastChild)
+                this.refs.last.scrollIntoView({
+                    // behavior: 'smooth',
+                    block: 'end',
+                    inline: 'nearest'
+                })
+        }
     }
 
     componentDidUpdate() {
-        if (this.refs.list) {
-            if (this.refs.list.lastChild)
-                if (this.state.autoscroll)
-                    this.refs.list.lastChild.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'end',
-                        inline: 'nearest'
-                    })
-        }
+        // if (this.state.autoscroll)
+        //     this.scroll()
+    }
+
+    componentDidMount() {
+        this.scroll()
     }
 
     render() {
@@ -134,6 +146,24 @@ class Chat extends React.Component {
                 <div
                     className="messages"
                     ref="list"
+                    onScroll={e => {
+                        // only on user scroll
+                        if (!this.newMessage) {
+                            // user scrolls up
+                            if (e.target.scrollTop < this.scrollBefore) {
+                                this.setState({ autoscroll: false })
+                            }
+
+                            // user scrolls to bottom
+                            if (e.target.scrollTop === (e.target.scrollHeight - e.target.offsetHeight)) {
+                                this.setState({ autoscroll: true })
+                            }
+                        }
+
+                        this.newMessage = false
+                        this.scrollBefore = e.target.scrollTop
+
+                    }}
                 >
                     {
                         this.state.messages.map((message) => (
@@ -146,13 +176,19 @@ class Chat extends React.Component {
                             />
                         ))
                     }
+                    <div ref="last" className="last"></div>
                 </div>
+
+                <Down
+                    className="scrolllock"
+                    data-enabled={this.state.autoscroll}
+                    onClick={() => { this.scroll(); this.setState({ autoscroll: true }) }}
+                />
 
                 <div className="input">
                     <input
                         type="text"
-                        className="message"
-                        ref="message"
+                        ref="input"
                         maxLength="120"
                         autoComplete="off"
                         placeholder="czat"
@@ -165,8 +201,6 @@ class Chat extends React.Component {
                             if (!e.shiftKey) if (e.key === 'Enter') this.send()
                         }}
                     />
-
-                    <Down />
 
                     <button
                         className="send"

@@ -8,28 +8,30 @@
     justify-content: space-between;
     align-items: stretch;
 	height: 100%;
+	position: relative;
 }
 
 .messages{
 	overflow-y: auto;
-	padding-bottom: 2em;
+	/* padding-bottom: .5em; */
 }
 
-.message:last-child{
+.message:nth-last-child(2){
 	border-bottom: 2px solid white;
 	/* animation: appear .1s; */
 	/* box-shadow: inset 0px -8px 8px -8px #fff2 */
 }
 
-@keyframes appear {
-	0% {
-		height: 0px;
-		opacity: 0;
-	}
+.message.last {
+	scroll-margin: -5em;
+}
 
-	100% {
-		height: 1.3em;
-		opacity: 1;
+@keyframes appear {
+	from {
+		transform: rotateY(90deg);
+	}
+	to {
+		transform: rotateY(0deg);
 	}
 }
 
@@ -80,27 +82,36 @@
 	display: flex;
 }
 
-.input .message {
+.input input {
 	width: 100%;
 }
 
-.input .message::placeholder{
+.input input::placeholder{
 	color: #3b404699;
 }
 
-.input .send {
+.input button {
 	padding: 0 1em;
 	cursor: pointer;
 }
 
-.input .send svg{
+.input button svg{
 	height: 2em;
 }
 
-.input svg.down {
-	padding: 0 0.5em;
-    height: 100%;
+.scrolllock {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: auto;
+	bottom: 4em;
+	height: 2em;
 	cursor: pointer;
+	animation: appear .3s;
+}
+
+.scrolllock[data-enabled=true]{
+	display: none;
 }
 
 .input > *{
