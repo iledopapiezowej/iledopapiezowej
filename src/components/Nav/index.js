@@ -12,12 +12,13 @@ function Nav(props) {
   
     useEffect(() => {
         let get = (obj, keys) => {
-            if(keys.length > 1)
+            if(keys.length > 1){
+                if(typeof obj === 'string') return obj
                 return get(obj[keys[0]], keys.slice(1))
+            }
             else {
                 let end = obj[keys[0]]
-                if(typeof end == 'string')
-                return end
+                if(typeof end == 'string') return end
                 else return end['']
 
             }
@@ -30,7 +31,7 @@ function Nav(props) {
         ga.pageview(pathname)
 
       },
-      [location]
+      [location] // eslint-disable-line
     ) 
 
     return (

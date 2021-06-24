@@ -21,7 +21,8 @@
 }
 
 .fun .el img {
-    height: 100%;
+    height: 4em;
+    width: 4em;
     float: left;
     margin-right: 1em;
     border-radius: .5em;

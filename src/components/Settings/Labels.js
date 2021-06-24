@@ -22,7 +22,7 @@ class LabelLink extends Label {
                 className="label text link"
             >
                 <span className="caption">{this.props.caption}</span>
-                <a href={this.props.href} target="_blank" rel="noreferrer">
+                <a href={this.props.href} target={this.props.external ? "_blank" : '_self'} rel="noreferrer">
                     <span className="desc">{this.props.desc}</span>
                 </a>
             </label>

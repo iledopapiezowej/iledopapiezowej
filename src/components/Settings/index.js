@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useState } from 'react'
 
 import {
     Label,
@@ -8,6 +8,9 @@ import {
 } from './Labels'
 
 import pkg from '../../../package.json'
+
+import SettingsContext from '../../contexts/Settings'
+import SocketContext from '../../contexts/Socket'
 
 import './style.css'
 import './labels.css'
@@ -99,21 +102,21 @@ var categories = [
                     }
                 ]
             },
-            {
+            {   // contact
                 id: 'contact',
                 header: 'Kontakt',
                 labels: [
                     {
-                        id: 'fb', type: 'link', caption: "Facebook",
+                        id: 'fb', type: 'link-external', caption: "Facebook",
                         desc: `iledopapiezowej`, href: "https://facebook.com/iledopapiezowej"
                     },
                     {
-                        id: 'dc', type: 'link', caption: "Discord",
+                        id: 'dc', type: 'link-external', caption: "Discord",
                         desc: `Mathias#1507`, href: "https://discordapp.com/users/212625669853544451"
                     }
                 ]
             },
-            {
+            {   // rules
                 id: 'rules',
                 header: 'Regulamin',
                 labels: [
@@ -211,8 +214,13 @@ class Section extends React.Component {
                             {...label}
                         />
 
+                        case 'link-external':
+                            var external = true
+
+                        // eslint-disable-next-line
                         case 'link': return <LabelLink
                             key={label.id}
+                            external={external}
                             {...label}
                         />
 
@@ -238,65 +246,65 @@ class Section extends React.Component {
     }
 }
 
-class Settings extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            active: categories[0].id
+function Settings(props) {
+
+    const [active, setActive] = useState(categories[0].id)
+
+    let socket = useContext(SocketContext)
+
+    let server = categories.find(category => category.id === 'about')
+        .sections.find(section => section.id === 'server'),
+        values = {
+            status: socket.sync.ping > 0 ? 'Połączono ✅' : 'Rozłączono ❌',
+            ping: `${Math.floor(socket.sync.ping)}ms`,
+            offset: `${Math.floor(socket.sync.offset)}ms`
         }
+
+    for (let v in values) {
+        server.labels.find(label => label.id === v)
+            .desc = values[v]
     }
 
-    render() {
-        let server = categories.find(category => category.id === 'about')
-            .sections.find(section => section.id === 'server'),
-            values = {
-                status: this.props.sync.ping > 0 ? 'Połączono ✅' : 'Rozłączono ❌',
-                ping: `${Math.floor(this.props.sync.ping)}ms`,
-                offset: `${Math.floor(this.props.sync.offset)}ms`
-            }
-
-        for (let v in values) {
-            server.labels.find(label => label.id === v)
-                .desc = values[v]
-        }
-
-        return (<>
-            <h1>Ustawienia 🔧</h1>
-            <div className="content">
-                <div className="categories">
-                    {
-                        categories.map(category => {
-                            return (
-                                <Tab
-                                    key={category.id}
-                                    id={category.id}
-                                    header={category.header}
-                                    active={this.state.active === category.id ? true : false}
-                                    onClick={id => { this.setState({ active: id }) }}
-                                />
-                            )
-                        })
-                    }
-                </div>
+    return (<>
+        <h1>Ustawienia 🔧</h1>
+        <div className="content">
+            <div className="categories">
                 {
-                    categories.map(category => (
-                        <Category
-                            key={category.id}
-                            id={category.id}
-                            header={category.header}
-                            active={this.state.active === category.id ? true : false}
-                            sections={category.sections}
-
-                            values={this.props.values}
-                            update={this.props.update}
-                        />
-
-                    ))
+                    categories.map(category => {
+                        return (
+                            <Tab
+                                key={category.id}
+                                id={category.id}
+                                header={category.header}
+                                active={active === category.id ? true : false}
+                                onClick={id => { setActive(id) }}
+                            />
+                        )
+                    })
                 }
             </div>
+            <SettingsContext.Consumer>{
+                settings => {
+                    return (
+                        categories.map(category => (
+                            <Category
+                                key={category.id}
+                                id={category.id}
+                                header={category.header}
+                                active={active === category.id ? true : false}
+                                sections={category.sections}
 
-        </>)
-    }
+                                values={settings.values}
+                                update={settings.set}
+                            />
+
+                        ))
+                    )
+                }}
+            </SettingsContext.Consumer>
+        </div>
+
+    </>)
 }
 
 export { categories, Settings }

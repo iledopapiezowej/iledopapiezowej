@@ -12,6 +12,7 @@ class Message extends React.Component {
         time: new Date(),
         nick: 'local',
         role: '',
+        self: false,
         content: ""
     }
 
@@ -25,7 +26,12 @@ class Message extends React.Component {
     // }
 
     render() {
-        return (<div className="message" ref="content">
+        return (<div
+            className="message"
+            ref="content"
+            data-last={this.props.last ? '' : undefined}
+            data-self={this.props.self ? '' : undefined}
+        >
             <span
                 className={[
                     'nick',
@@ -61,25 +67,21 @@ class Chat extends React.Component {
         this.state = {
             nick: 'nickname',
             messages: props.socket.latest.map(chunk => this._parse(chunk)),
-            input: '',
             autoscroll: true
         }
 
         this.props.socket.addListener('onChatReceive', (data) => {
-            data.id = Math.random().toString(36).substr(2, 9)
+            data.key = Math.random().toString(36).substr(2, 9)
+            data.self = data.id === props.socket.id
             this.receive(data)
         })
 
     }
 
     _parse(chunk) {
-        return {
-            id: chunk.id,
-            time: chunk.time ? new Date(chunk.time) : new Date(),
-            nick: chunk.nick,
-            role: chunk.role,
-            content: chunk.content
-        }
+        chunk.time = chunk.time ? new Date(chunk.time) : new Date()
+
+        return chunk
     }
 
     receive(data) {
@@ -102,10 +104,23 @@ class Chat extends React.Component {
 
     }
 
+    command(args) {
+        if (args[0] === 'nick') {
+            console.log(args[1])
+            return true
+        }
+
+        return true
+    }
+
     send() {
-        let content = this.state.input
+        let content = this.refs.input.value
 
         if (content.length < 1) return
+
+        if (content.startsWith('/')) {
+            if (!this.command(content.slice(1).split(' '))) return
+        }
 
         this.props.socket.send({
             type: 'chat',
@@ -168,11 +183,7 @@ class Chat extends React.Component {
                     {
                         this.state.messages.map((message) => (
                             <Message
-                                key={message.id}
-                                time={message.time}
-                                nick={message.nick}
-                                role={message.role}
-                                content={message.content}
+                                {...message}
                             />
                         ))
                     }
@@ -192,11 +203,6 @@ class Chat extends React.Component {
                         maxLength="120"
                         autoComplete="off"
                         placeholder="czat"
-                        onKeyUp={e => {
-                            this.setState({
-                                input: e.target.value
-                            })
-                        }}
                         onKeyDown={e => {
                             if (!e.shiftKey) if (e.key === 'Enter') this.send()
                         }}
