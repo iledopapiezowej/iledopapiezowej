@@ -18,7 +18,7 @@ class Player extends React.Component {
         super(props)
 
         this.audio = new Audio('/media/barka.ogg')
-        this.audio.onpause = ()=>{this.pause()}
+        this.audio.onpause = () => { this.pause() }
         // this.audio.onplay = ()=>{this.play()}
 
         this.maxVolume = 8
@@ -61,10 +61,11 @@ class Player extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if(!prevProps.event && this.props.event){
-            this.audio.currentTime = this.props.elapsed
-            this.play()
-        }
+        if (this.props.doMusic)
+            if (!prevProps.event && this.props.event) {
+                this.audio.currentTime = this.props.elapsed
+                this.play()
+            }
     }
 
     render() {
@@ -89,9 +90,9 @@ class Player extends React.Component {
                     <Sine />
                 </div>
                 <div
-                className="button volume"
-                onClick={() => { this.volume() }}
-                data-tooltip={`Volume: ${this.state.volume}/${this.maxVolume}`}
+                    className="button volume"
+                    onClick={() => { this.volume() }}
+                    data-tooltip={`Volume: ${this.state.volume}/${this.maxVolume}`}
                 >
                     {volume}
                 </div>

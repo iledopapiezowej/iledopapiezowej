@@ -7,7 +7,7 @@
     overflow-x: hidden;
     position: relative;
     
-	background-image: url("../Home/funky-lines.png");
+	background-image: url("./funky-lines.png");
     /* background-blend-mode: color; */
 }
 

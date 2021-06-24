@@ -1,9 +1,38 @@
-import React from 'react'
-import { NavLink } from "react-router-dom";
+import React, { useContext, useEffect, useState } from 'react'
+import { NavLink, useLocation } from "react-router-dom";
+
+import GaContext from '../../contexts/Ga'
 
 import './style.css'
 
 function Nav(props) {
+    let location = useLocation(),
+        ga = useContext(GaContext),
+        [interacted, setInteracted] = useState(false);
+  
+    useEffect(() => {
+        let get = (obj, keys) => {
+            if(keys.length > 1){
+                if(typeof obj === 'string') return obj
+                return get(obj[keys[0]], keys.slice(1))
+            }
+            else {
+                let end = obj[keys[0]]
+                if(typeof end == 'string') return end
+                else return end['']
+
+            }
+        },
+        pathname = location.pathname,
+        title = get(props.titles, pathname.split('/')),
+        suffix = 'Ile do papieżowej? ⏳'
+
+        document.title = title ? (title + ' | ' + suffix) : suffix
+        ga.pageview(pathname)
+
+      },
+      [location] // eslint-disable-line
+    ) 
 
     return (
         <nav>
@@ -15,6 +44,16 @@ function Nav(props) {
                             exact={link.to === '/'}
                             key={link.to}
                             to={link.to}
+                            onClick={()=>{
+                                if(!interacted){
+                                    ga.event({
+                                        category: 'Navigation',
+                                        action: 'First Nav Interaction',
+                                        label: link.header,
+                                    })
+                                    setInteracted(true)
+                                }
+                            }}
                         >
                             {link.header}
                         </NavLink>

@@ -1,82 +1,90 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+
+import GaContext from '../../contexts/Ga'
+import SettingsContext from '../../contexts/Settings'
 
 import './style.css'
 import { ReactComponent as CaretUp } from './caret-up.svg'
 import { ReactComponent as Close } from './close.svg'
 
-class Promo extends React.Component {
-    static defaultProps = {
-        hidden: true,
-        thumb: '',
-        link: '',
-        content: ""
-    }
+function Promo({ hidden = true, closedDefault = false, header, link, thumb, content, id }) {
+    let settings = useContext(SettingsContext),
+        ga = useContext(GaContext)
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            open: false,
-            closed: false
+    const [open, setOpen] = useState(false),
+        [closed, setClosed] = useState(false)
+
+    useEffect(()=>{
+        if(closed){
+            settings.set('promo-'+id, closed)
         }
-    }
+    }, [closed]) // eslint-disable-line
 
-    open() {
-        if (!this.state.open)
-            this.setState({
-                open: true
-            })
-    }
+    return (
+        <div
+            className={[
+                'promo',
+                hidden ? 'hidden' : '',
+                open ? 'open' : '',
+                closed || closedDefault ? 'closed' : ''
+            ].join(' ')}
 
-    close() {
-        this.setState({
-            open: false,
-            closed: true
-        })
-    }
+            onClick={() => {
+                if (!open) {
+                    setOpen(true)
+                    ga.event({
+                        category: 'Promo',
+                        action: 'Opened Modal',
+                        label: header
+                    })
+                }
+            }}
+        >
 
-    render() {
-        return (
-            <div
-                className={[
-                    'promo',
-                    this.props.hidden ? 'hidden' : '',
-                    this.state.open ? 'open' : '',
-                    this.state.closed ? 'closed' : ''
-                ].join(' ')}
+            <img
+                className="thumb"
+                src={thumb}
+                alt="nagłówek promocji"
+            />
 
-                onClick={() => { this.open() }}
-            >
+            <span className="header">
+                {header}
 
-                <img
-                    className="thumb"
-                    src={this.props.thumb}
-                    alt="nagłówek promocji"
-                />
+                {open ?
+                    <Close
+                        onClick={() => {
+                            setOpen(false)
+                            setClosed(true)
+                        }} />
+                    : <CaretUp />
+                }
+            </span>
 
-                <span className="header">
-                    {this.props.header}
+            <span className="more">Czytaj więcej...</span>
 
-                    {
-                        this.state.open ? <Close onClick={() => { this.close() }} /> : <CaretUp />
+            <span className="sub">
+                <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={link}
+                    onClick={
+                        () => {
+                            ga.event({
+                                category: 'Promo',
+                                action: 'Clicked Link',
+                                label: link
+                            })
+                        }
                     }
-                </span>
+                >{link}</a>
+            </span>
 
-                <span className="sub">
-                    <a
-                        target="_blank"
-                        rel="noreferrer"
-                        href={this.props.link}
-                    >{this.props.link}</a>
-                </span>
+            <div className="clear"></div>
 
-                <div className="clear"></div>
-
-                <div className="content">
-                    {this.props.content}
-                </div>
+            <div className="content">
+                {content}
             </div>
-        )
-    }
+        </div>)     
 }
 
 export default Promo
