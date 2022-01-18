@@ -2,7 +2,8 @@
   "name": "iledopapiezowej",
   "version": "2.0.2",
   "lastUpdate": "05/12/2021",
-  "private": true,
+  "private": false,
+  "license": "BSD-3-Clause",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.10",
     "@testing-library/react": "^11.2.6",
