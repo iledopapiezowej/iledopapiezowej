@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react'
 
 import { Label, LabelLink, Field, Toggle } from './Labels'
 
-import { promptLogin } from '../../Login'
 import pkg from '../../../package.json'
 
 import SettingsContext from '../../contexts/Settings'
