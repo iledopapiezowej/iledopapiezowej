@@ -1,21 +1,20 @@
-export function addListener(name, callback){
-    if(typeof this.events !== 'object') this.events = {}
-    if(!Array.isArray(this.events[name])) this.events[name] = []
+function addListener(name, callback) {
+	if (typeof this.events !== 'object') this.events = {}
+	if (!Array.isArray(this.events[name])) this.events[name] = []
 
-    this.events[name].push(callback)
+	this.events[name].push(callback)
+	return this.events[name].length - 1
 }
 
-export function addStateListener(name, state){
-    this.addListener(name, (data) => {
-        this.setState({
-            [state]: data
-        })
-    })
+function removeListener(name, i) {
+	this.events[name].splice(i, 1)
 }
 
-export function triggerEvent(name, payload){
-    if(typeof this.events[name] !== 'undefined')
-    for(let callback of this.events[name]){
-        callback(payload, this)
-    }
+function triggerEvent(name, payload) {
+	if (typeof this.events[name] !== 'undefined')
+		for (let callback of this.events[name]) {
+			callback(payload, this)
+		}
 }
+
+export { addListener, removeListener, triggerEvent }

@@ -1,212 +1,275 @@
-import { addListener, triggerEvent } from './Listener'
+import { addListener, removeListener, triggerEvent } from './Listener'
 
 import pkg from '../package.json'
 
-import Captcha from './auth/Captcha'
+const { REACT_APP_CAPTCHA_KEY } = process.env
 
 class Socket {
-    constructor(listeners) {
-        this.ws = null
-        this.sync = {
-            begin: null,
-            end: null,
-            rtt: null,
-            ping: null,
-            diff: null,
-            offset: null
-        }
-        this.retries = 0
+	constructor(listeners) {
+		this.ws = null
 
-        this.latest = []
+		this.pending = []
 
-        this.addListener = addListener
-        this.triggerEvent = triggerEvent
+		this.subscribed = {
+			chat: 0,
+		}
 
-        this.addListener('onChatReceive', chunk => {
-            this.latest.push(chunk)
-            if (this.latest.length > 100) this.latest.unshift()
-        })
+		this.sync = {
+			begin: null,
+			end: null,
+			rtt: null,
+			ping: null,
+			diff: null, // time difference
+			offset: null, // corrected time difference
+		}
+		this.retries = 0 // reconnect attempts
 
-        for (let name in listeners) this.addListener(name, listeners[name])
+		this.addListener = addListener
+		this.removeListener = removeListener
+		this.triggerEvent = triggerEvent
 
-        this.open()
-    }
+		for (let name in listeners) this.addListener(name, listeners[name])
 
-    getCaptcha(action) {
-        console.info('Requesting captcha token')
-        return window.grecaptcha.execute(Captcha.key, { action })
-            .then(token => {
-                console.info('Received captcha')
-                this.captcha = token
-                return token
-            })
-    }
+		this.latest = [] // older chat messages
+		this.addListener('onChatReceive', (chunk) => {
+			// skip messages already cached
+			if (this.latest.find((e) => e.mid === chunk.mid)) return
 
-    send(object) {
-        if (this.ws.readyState !== WebSocket.OPEN) return
+			// ensure meta property exist
+			chunk.mid || (chunk.mid = Math.random().toString(36).slice(2, 9))
+			chunk.time || (chunk.time = new Date().toISOString())
 
-        this.ws.send(JSON.stringify(object))
-        console.debug(`Sending`, object)
-    }
+			this.latest.push(chunk)
+			if (this.latest.length > 100) this.latest.unshift()
+		})
 
-    open() {
-        this.ws = new WebSocket(`wss://${window.location.host}/ws/`)
-        // this.ws = new WebSocket(`wss://iledopapiezowej.pl/ws/`)
-        // this.ws = new WebSocket(`wss://beta.iledopapiezowej.pl/ws/`)
-        // this.ws = new WebSocket(`ws://localhost:5502`)
+		this.open()
+	}
 
-        this.ws.onopen = () => {
-            console.info(`Socket connected`)
+	open() {
+		this.ws = new WebSocket(process.env.REACT_APP_WS_SERVER)
+		// this.ws = new WebSocket(`wss://iledopapiezowej.pl/ws/`)
+		// this.ws = new WebSocket(`wss://beta.iledopapiezowej.pl/ws/`)
+		// this.ws = new WebSocket(`ws://localhost:5502`)
 
-            if (this.retries > 0) {
-                this.retries = 0
-                this.triggerEvent('onChatReceive', {
-                    nick: 'local',
-                    role: 'root',
-                    content: "Połączono ✔️"
-                })
-            }
+		this.ws.onopen = () => {
+			console.info(`Socket connected`)
 
-            this.visibility(window.document.visibilityState === 'visible')
+			for (let payload of this.pending) {
+				this.send(payload)
+			}
 
-            // re-set nick
-            if (localStorage['nick']) {
-                if (localStorage['nick'] !== 'undefined')
-                    this.triggerEvent('onChatSend', `/nick ${localStorage['nick']}`)
-            }
+			if (this.retries > 0) {
+				this.retries = 0
+				this.triggerEvent('onChatReceive', {
+					nick: 'local',
+					role: 'root',
+					content: 'Połączono ✔️',
+				})
+			}
 
-            // re-login
-            if (localStorage['login']) {
-                if (localStorage['login'] !== 'undefined undefined')
-                    this.triggerEvent('onChatSend', `/login ${localStorage['login']}`)
-            }
-        }
+			this.visibility(window.document.visibilityState === 'visible')
 
-        this.ws.onclose = e => {
-            console.info(`Socket disconnected`, e.code, e.reason)
+			// re-set nick
+			if (localStorage['nick']) {
+				if (localStorage['nick'] !== 'undefined')
+					this.triggerEvent('onChatSend', `/nick ${localStorage['nick']}`)
+			}
 
-            this.triggerEvent('onChatReceive', {
-                nick: 'local',
-                role: 'root',
-                content: "Rozłączono ❌"
-            })
+			// re-login
+			if (localStorage['login']) {
+				if (localStorage['login'] !== 'undefined undefined')
+					this.triggerEvent('onChatSend', `/login ${localStorage['login']}`)
+			}
+		}
 
-            this.triggerEvent('onSocketDisconnect', this.ws.readyState)
+		this.ws.onclose = (e) => {
+			console.info(`Socket disconnected`, e.code, e.reason)
 
-            this.captcha = null
-            this.sync.ping = -1
+			this.triggerEvent('onSocketDisconnect', this.ws.readyState)
+			this.triggerEvent('onChatReceive', {
+				nick: 'local',
+				role: 'root',
+				content: 'Rozłączono ❌',
+			})
 
-            this.reopen()
-        }
+			this.captcha = null
+			this.sync.ping = -1
 
-        this.ws.onmessage = (e) => {
-            let data = JSON.parse(e.data)
+			this.reopen()
+		}
 
-            // wrap in an array anyways
-            if (!Array.isArray(data)) data = [data]
+		this.ws.onmessage = (e) => {
+			let data = JSON.parse(e.data)
 
-            console.debug(`Receiving`, `[${data.map(o => o.type).join()}]`, data)
+			// wrap in an array anyways
+			if (!Array.isArray(data)) data = [data]
 
-            for (let chunk of data) {
-                // view count update
-                if (chunk.type === 'count') {
-                    this.triggerEvent('onCount', {
-                        count: chunk.count,
-                        invisible: chunk.invisible
-                    })
+			console.debug(
+				`Receiving`,
+				`[${data.map(({ type }) => type).join(' ')}]`,
+				data
+			)
 
-                }
+			for (let chunk of data) {
+				let { type, flag } = chunk
 
-                // received chat message
-                if (chunk.type === 'chat') {
-                    this.triggerEvent('onChatReceive', chunk)
+				// receive server version
+				if (type === 'info') {
+					this.version = chunk.version
+					this.id = chunk.id
 
-                }
+					let supports = chunk.supports.split('.'),
+						version = pkg.version.split('.'),
+						isSupported = true
 
-                // received older messages
-                if (chunk.type === 'cachedMessages') {
-                    if (chunk.messages.length > 1)
-                        chunk.messages[chunk.messages.length - 1].last = true
-                    for (let message of chunk.messages) {
-                        this.triggerEvent('onChatReceive', message)
-                    }
-                }
+					for (let i in supports) {
+						if (supports[i] > version[i]) {
+							isSupported = false
+							break
+						}
+						if (supports[i] < version[i]) {
+							isSupported = true
+							break
+						}
+					}
 
-                // server requested captcha
-                if (chunk.type === 'captcha') {
-                    this.getCaptcha(chunk.action ?? 'general')
-                        .then(token => {
-                            this.send({
-                                type: 'captcha',
-                                token
-                            })
-                        })
-                }
+					console.info(
+						`id: ${chunk.id}, Client: ${pkg.version}, Server: ${chunk.version}, Supports: ${chunk.supports} (${isSupported})`
+					)
+				}
 
-                // initiate time synchronisation
-                if (chunk.type === 'sync.begin') {
-                    this.sync.begin = performance.now()
-                    this.send({
-                        type: "sync.received",
-                        heartbeat: chunk.heartbeat ?? false
-                    })
+				// viewcount update
+				if (type === 'count') {
+					this.triggerEvent('onCount', {
+						count: chunk.count,
+						invisible: chunk.invisible,
+					})
+				}
 
-                }
+				// chat message
+				if (type === 'chat') {
+					if (flag === 'messages')
+						// older messages
+						for (let message of chunk.messages) {
+							this.triggerEvent('onChatReceive', message)
+						}
+					else this.triggerEvent('onChatReceive', chunk) // regular message
+				}
 
-                // calculate synchronised time offset
-                if (chunk.type === 'sync.end') {
-                    this.sync.end = performance.now()
-                    this.sync.rtt = this.sync.end - this.sync.begin
-                    this.sync.ping = this.sync.rtt / 2
-                    this.sync.diff = (Date.now() - chunk.time)
-                    this.sync.offset = this.sync.diff - this.sync.ping
+				// server requested captcha
+				if (type === 'captcha') {
+					this.getCaptcha(chunk.action ?? 'general').then((token) => {
+						this.send({
+							type: 'captcha',
+							token,
+						})
+					})
+				}
 
-                    this.triggerEvent('onSync', this.sync)
+				// time synchronisation
+				if (type === 'sync') {
+					// init
+					if (flag === 'begin') {
+						this.sync.begin = performance.now()
+						this.send({
+							type: 'sync',
+							flag: 'received',
+							heartbeat: chunk.heartbeat ?? false,
+						})
+					}
 
-                    console.info(`Time synced${chunk.heartbeat ? ' ❤️' : ''}, offset: ${this.sync.offset.toFixed(3)}ms with ping: ${this.sync.ping.toFixed(3)}`)
+					// calculate
+					if (flag === 'end') {
+						this.sync.end = performance.now()
+						this.sync.rtt = this.sync.end - this.sync.begin
+						this.sync.ping = this.sync.rtt / 2
+						this.sync.diff = Date.now() - chunk.time
+						this.sync.offset = this.sync.diff - this.sync.ping
 
-                }
+						this.triggerEvent('onSync', this.sync)
 
-                // receive server version
-                if (chunk.type === 'version') {
-                    this.version = chunk.version
+						console.info(
+							`Time synced${
+								chunk.heartbeat ? ' ❤️' : ''
+							}, offset: ${this.sync.offset.toFixed(
+								1
+							)}ms, ping: ${this.sync.ping.toFixed(1)}`
+						)
+					}
+				}
 
-                    let supported = chunk.supports.split('.').join('') - pkg.version.split('.').join('')
+				if (type === 'clicker') {
+					this.triggerEvent('onClickerReceive', chunk)
+				}
+			}
+		}
+	}
 
-                    console.info(`Server version: ${chunk.version}. Supports: ${chunk.supports} (${supported > 0 ? 'Outdated' : 'Latest'
-                        })`)
-                }
+	reopen() {
+		if (this.ws.readyState === WebSocket.OPEN) return
 
-                // receive current connection id
-                if (chunk.type === 'id') {
-                    this.id = chunk.id
-                    console.info(`Received connection info`, chunk)
-                }
+		if (this.retries > 5) {
+			console.info(`Socket stopped, too many reconnect attempts`)
+		} else
+			setTimeout(() => {
+				console.info(`Socket attempting reconnect, #${this.retries + 1}`)
+				this.retries++
+				this.open()
+			}, 4e3)
+	}
 
-            }
+	send(object) {
+		if (this.ws.readyState !== WebSocket.OPEN) {
+			console.debug('Pending', object)
+			return this.pending.push(object)
+		}
 
-        }
+		this.ws.send(JSON.stringify(object))
+		console.debug(`Sending`, object)
+	}
 
-    }
+	getCaptcha(action) {
+		console.info('Requesting captcha token')
+		return window.grecaptcha
+			.execute(REACT_APP_CAPTCHA_KEY, { action })
+			.then((token) => {
+				console.info('Received captcha')
+				this.captcha = token
+				return token
+			})
+	}
 
-    visibility(visible) {
-        this.send({
-            type: 'visibility',
-            visible: visible
-        })
-    }
+	visibility(visible) {
+		this.send({
+			type: 'count',
+			visible: visible,
+		})
+	}
 
-    reopen() {
-        if (this.ws.readyState === WebSocket.OPEN) return
+	subscribe(type) {
+		if (this.subscribed[type] < 1) {
+			this.send({
+				type,
+				subscribe: true,
+			})
+		}
+		this.subscribed[type]
+			? this.subscribed[type]++
+			: (this.subscribed[type] = 1)
+	}
 
-        if (this.retries > 5) {
-            console.info(`Socket stopped, too many reconnect attempts`)
-        } else setTimeout(() => {
-            console.info(`Socket attempting reconnect, #${this.retries + 1}`)
-            this.retries++
-            this.open()
-        }, 4e3)
-    }
+	unsubscribe(type) {
+		if (this.subscribed[type] == 1) {
+			this.send({
+				type,
+				unsubscribe: true,
+			})
+		}
+		this.subscribed[type]
+			? this.subscribed[type]--
+			: (this.subscribed[type] = 0)
+	}
 }
 
 export default Socket

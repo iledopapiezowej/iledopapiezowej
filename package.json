@@ -1,45 +1,44 @@
 {
-  "name": "iledopapiezowej",
-  "version": "2.0.2",
-  "lastUpdate": "05/12/2021",
-  "private": false,
-  "license": "BSD-3-Clause",
-  "dependencies": {
-    "@testing-library/jest-dom": "^5.11.10",
-    "@testing-library/react": "^11.2.6",
-    "@testing-library/user-event": "^12.8.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-ga": "^3.3.0",
-    "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.3",
-    "react-transition-group": "^4.4.1",
-    "web-vitals": "^1.1.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "serve": "serve -s build"
-  },
-  "author": "Mateusz Pstrucha",
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+	"name": "iledopapiezowej",
+	"version": "2.1.0",
+	"lastUpdate": "20/01/2022",
+	"private": true,
+	"dependencies": {
+		"@testing-library/jest-dom": "^5.11.10",
+		"@testing-library/react": "^11.2.6",
+		"@testing-library/user-event": "^12.8.3",
+		"react": "^17.0.2",
+		"react-dom": "^17.0.2",
+		"react-ga": "^3.3.0",
+		"react-router-dom": "^5.2.0",
+		"react-scripts": "4.0.3",
+		"react-transition-group": "^4.4.1",
+		"web-vitals": "^1.1.1"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject",
+		"serve": "serve -s build"
+	},
+	"author": "Mateusz Pstrucha",
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	}
 }
