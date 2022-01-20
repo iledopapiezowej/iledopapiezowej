@@ -1,225 +1,170 @@
-import React from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 
 import { ReactComponent as Send } from './send.svg'
 import { ReactComponent as Down } from './down.svg'
 
 import './index.css'
 import './roles.css'
+import Socket from '../../contexts/Socket.js'
 
-class Message extends React.Component {
-    static defaultProps = {
-        id: null,
-        time: new Date(),
-        nick: 'local',
-        role: '',
-        self: false,
-        content: ""
-    }
+function Message({
+	id = null,
+	time = '',
+	nick = 'local',
+	role = '',
+	self = false,
+	content = '',
+}) {
+	time = new Date(time)
+	return (
+		<div className="message" data-self={self}>
+			<span className={['nick', role].join(' ')} data-id={id}>
+				{nick}
+			</span>
 
-    // constructor(props) {
-    //     super(props)
-    // }
-
-    // componentDidMount(){
-    //     if(this.props.)
-    //     this.refs.content.
-    // }
-
-    render() {
-        return (<div
-            className="message"
-            ref="content"
-            data-last={this.props.last ? '' : undefined}
-            data-self={this.props.self ? '' : undefined}
-        >
-            <span
-                className={[
-                    'nick',
-                    this.props.role
-                ].join(' ')}
-                data-id={this.props.id}
-            >
-                {this.props.nick}
-            </span>
-
-            <span className="content">{this.props.content}</span>
-            <span className="time" title={this.props.time.toString()}>
-                {(() => {
-                    let h = this.props.time.getHours(),
-                        m = this.props.time.getMinutes(),
-                        s = this.props.time.getSeconds()
-
-                    return `${h < 10 ? '0' : ''}${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
-                })()}
-            </span>
-        </div>)
-    }
+			<span className="content">{content}</span>
+			<span className="time" title={time.toString()}>
+				{time.toISOString().slice(11, -5)}
+			</span>
+		</div>
+	)
 }
 
-class Chat extends React.Component {
-    static defaultProps = {
-        show: true,
-        messageLimit: 300
-    }
+var newMessage = false,
+	scrollBefore = null
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            nick: 'nickname',
-            messages: props.socket.latest.map(chunk => this._parse(chunk)),
-            autoscroll: true
-        }
+function Chat({ show = true, messageLimit = 300 }) {
+	const socket = useContext(Socket)
 
-        this.props.socket.addListener('onChatReceive', (data) => {
-            data.key = Math.random().toString(36).substr(2, 9)
-            data.self = data.id === props.socket.id
-            this.receive(data)
-        })
+	const [messages, setMessages] = useState(socket.latest),
+		[autoscroll, setAutoscroll] = useState(true)
 
-    }
+	const list = useRef(null),
+		last = useRef(null),
+		input = useRef(null)
 
-    _parse(chunk) {
-        chunk.time = chunk.time ? new Date(chunk.time) : new Date()
+	function scroll() {
+		if (autoscroll)
+			if (list.current) {
+				if (list.current.lastChild)
+					last.current.scrollIntoView({
+						// behavior: 'smooth',
+						block: 'end',
+						inline: 'nearest',
+					})
+			}
+	}
 
-        return chunk
-    }
+	function command(args) {
+		if (args[0] === 'nick') {
+			console.log(args[1])
+			return true
+		}
 
-    receive(data) {
-        let next = this.state.messages
+		return true
+	}
 
-        if (next.length > this.props.messageLimit) {
-            next.shift()
-        }
+	function send() {
+		let content = input.current.value
 
-        next = next.concat(this._parse(data))
+		if (content.length < 1) return
 
-        this.setState({
-            messages: next
-        })
+		if (content.startsWith('/')) {
+			if (!command(content.slice(1).split(' '))) return
+		}
 
-        this.newMessage = true
+		socket.send({
+			type: 'chat',
+			content: content,
+		})
 
-        if (this.state.autoscroll)
-            this.scroll()
+		input.current.value = ''
+	}
 
-    }
+	useEffect(() => {
+		let e = socket.addListener('onChatReceive', () => {
+			setMessages(socket.latest.slice(-messageLimit))
 
-    command(args) {
-        if (args[0] === 'nick') {
-            console.log(args[1])
-            return true
-        }
+			newMessage = true
+			scroll()
+		})
 
-        return true
-    }
+		socket.subscribe('chat')
 
-    send() {
-        let content = this.refs.input.value
+		return () => {
+			socket.unsubscribe('chat')
+			socket.removeListener('onChatReceive', e)
+		}
+	}, []) // eslint-disable-line
 
-        if (content.length < 1) return
+	return (
+		<div className={['chat', show ? '' : 'hidden'].join(' ')}>
+			<div
+				className="messages"
+				ref={list}
+				onScroll={(e) => {
+					// only on user scroll
+					if (!newMessage) {
+						// user scrolls up
+						if (e.target.scrollTop < scrollBefore) {
+							setAutoscroll(false)
+						}
 
-        if (content.startsWith('/')) {
-            if (!this.command(content.slice(1).split(' '))) return
-        }
+						// user scrolls to bottom
+						if (
+							e.target.scrollTop ===
+							e.target.scrollHeight - e.target.offsetHeight
+						) {
+							setAutoscroll(true)
+						}
+					}
 
-        this.props.socket.send({
-            type: 'chat',
-            content: content
-        })
+					newMessage = false
+					scrollBefore = e.target.scrollTop
+				}}
+			>
+				{messages.map((message) => (
+					<Message
+						key={message.mid}
+						self={message.uid === socket.id}
+						{...message}
+					/>
+				))}
+				<div ref={last} className="last"></div>
+			</div>
 
-        this.refs.input.value = ''
-    }
+			<Down
+				className="scrolllock"
+				data-enabled={autoscroll}
+				onClick={() => {
+					scroll()
+					setAutoscroll(true)
+				}}
+			/>
 
-    scroll() {
-        if (this.refs.list) {
-            if (this.refs.list.lastChild)
-                this.refs.last.scrollIntoView({
-                    // behavior: 'smooth',
-                    block: 'end',
-                    inline: 'nearest'
-                })
-        }
-    }
+			<div className="input">
+				<input
+					type="text"
+					ref={input}
+					maxLength="120"
+					autoComplete="off"
+					placeholder="czat"
+					onKeyDown={(e) => {
+						if (!e.shiftKey) if (e.key === 'Enter') send()
+					}}
+				/>
 
-    componentDidUpdate() {
-        // if (this.state.autoscroll)
-        //     this.scroll()
-    }
-
-    componentDidMount() {
-        this.scroll()
-    }
-
-    render() {
-
-        return (
-            <div className={[
-                'chat',
-                this.props.show ? '' : 'hidden'
-            ].join(' ')}>
-
-                <div
-                    className="messages"
-                    ref="list"
-                    onScroll={e => {
-                        // only on user scroll
-                        if (!this.newMessage) {
-                            // user scrolls up
-                            if (e.target.scrollTop < this.scrollBefore) {
-                                this.setState({ autoscroll: false })
-                            }
-
-                            // user scrolls to bottom
-                            if (e.target.scrollTop === (e.target.scrollHeight - e.target.offsetHeight)) {
-                                this.setState({ autoscroll: true })
-                            }
-                        }
-
-                        this.newMessage = false
-                        this.scrollBefore = e.target.scrollTop
-
-                    }}
-                >
-                    {
-                        this.state.messages.map((message) => (
-                            <Message
-                                {...message}
-                            />
-                        ))
-                    }
-                    <div ref="last" className="last"></div>
-                </div>
-
-                <Down
-                    className="scrolllock"
-                    data-enabled={this.state.autoscroll}
-                    onClick={() => { this.scroll(); this.setState({ autoscroll: true }) }}
-                />
-
-                <div className="input">
-                    <input
-                        type="text"
-                        ref="input"
-                        maxLength="120"
-                        autoComplete="off"
-                        placeholder="czat"
-                        onKeyDown={e => {
-                            if (!e.shiftKey) if (e.key === 'Enter') this.send()
-                        }}
-                    />
-
-                    <button
-                        className="send"
-                        onClick={() => { this.send() }}
-                    >
-                        <Send />
-                    </button>
-
-                </div>
-            </div>
-        )
-    }
-
+				<button
+					className="send"
+					onClick={() => {
+						send()
+					}}
+				>
+					<Send />
+				</button>
+			</div>
+		</div>
+	)
 }
 
 export default Chat
