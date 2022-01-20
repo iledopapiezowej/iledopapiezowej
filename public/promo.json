@@ -1,8 +1,8 @@
 {
-    "hidden": false,
-    "thumb": "/media/programmer.jpg",
-    "link": "https://docs.google.com/forms/d/1uG9m6KCzEa3f5qLQlm6rPX2OPYW-WN4HtFq9qq4f-HA",
-    "header": "Dev Team Rekrutacja",
-    "content": "Popyt na nowości rośnie, a programista ciągle tylko jeden, zapraszam do aplikacji",
-    "id": 2
+	"hidden": false,
+	"thumb": "/media/dc_64.jpg",
+	"link": "https://discord.gg/BwBzdEJecC",
+	"header": "Oficjalny serwer Discord",
+	"content": "Zapraszamy na nasz oficjalny serwer Discord",
+	"id": 3
 }
