@@ -2,7 +2,7 @@
 
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Depploy
 
 # Controls when the workflow will run
 on:
@@ -16,7 +16,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
+  deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -29,7 +29,7 @@ jobs:
           username: git
           key: ${{ secrets.ODIN_GIT_GH_RSA }}
           port: 22
-          script: cd /var/www/iledopapiezowej/ | 
-            git pull | 
-            yarn |
+          script: cd /var/www/iledopapiezowej/
+            git pull
+            yarn
             yarn run build
