@@ -260,7 +260,7 @@ class Socket {
 	}
 
 	unsubscribe(type) {
-		if (this.subscribed[type] == 1) {
+		if (this.subscribed[type] === 1) {
 			this.send({
 				type,
 				unsubscribe: true,
