@@ -29,7 +29,8 @@ jobs:
           username: git
           key: ${{ secrets.ODIN_GIT_GH_RSA }}
           port: 22
-          script: cd /var/www/iledopapiezowej/
+          script: |
+            cd /var/www/iledopapiezowej/
             git pull
             yarn
             yarn run build
