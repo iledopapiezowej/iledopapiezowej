@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '16'
 
-      - name: Install npm dependencies
+      - name: Install dependencies
         run: yarn install
 
       - name: Run build task
@@ -27,7 +27,7 @@ jobs:
       - name: Deploy to Odin
         uses: easingthemes/ssh-deploy@main
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.ODIN_GIT_GH_RSA }}
+          SSH_PRIVATE_KEY: ${{ secrets.ODIN_GIT_GH_PEM }}
           ARGS: '-rltgoDzvO --delete'
           SOURCE: 'build/'
           REMOTE_HOST: ${{ secrets.ODIN_HOST }}
