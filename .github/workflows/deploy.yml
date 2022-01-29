@@ -1,36 +1,35 @@
-
-
-# This is a basic workflow to help you get started with Actions
-
 name: CD
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  deploy:
-    # The type of runner that the job will run on
+  build:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: deploy new build
-        uses: appleboy/ssh-action@master
+      - uses: actions/checkout@v1
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
         with:
-          host: ${{ secrets.ODIN_HOST }}
-          username: git
-          key: ${{ secrets.ODIN_GIT_GH_RSA }}
-          port: 22
-          script: |
-            cd /var/www/iledopapiezowej/
-            git pull
-            yarn
-            yarn run build
+          node-version: '16'
+
+      - name: Install npm dependencies
+        run: yarn install
+
+      - name: Run build task
+        run: yarn run build
+
+      - name: Deploy to Odin
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.ODIN_GIT_GH_RSA }}
+          ARGS: '-rltgoDzvO --delete'
+          SOURCE: 'build/'
+          REMOTE_HOST: ${{ secrets.ODIN_HOST }}
+          REMOTE_USER: git
+          TARGET: /var/www/iledopapiezowej/build
