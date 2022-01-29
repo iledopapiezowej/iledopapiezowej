@@ -33,3 +33,9 @@ jobs:
           REMOTE_HOST: ${{ secrets.ODIN_HOST }}
           REMOTE_USER: git
           TARGET: /var/www/iledopapiezowej/build
+
+      - name: Purge cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CF_ZONE_ILEDOPAPIEZOWEJ }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CF_TOKEN_PURGE }}
