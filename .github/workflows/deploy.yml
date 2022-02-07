@@ -1,14 +1,17 @@
 name: CD
 
 on:
-  push:
+  workflow_run:
+    workflows: ['CI']
     branches: [master]
+    types:
+      - completed
 
   workflow_dispatch:
 
 jobs:
   deploy:
-    needs: [build]
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
