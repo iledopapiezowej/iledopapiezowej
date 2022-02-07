@@ -34,8 +34,15 @@ categories
 	.flat()
 	.map((o) => ({ id: o.id, default: o.default }))
 	.forEach((o) => {
-		console.log()
-		const def = JSON.parse(localStorage[o.id] ?? null) ?? o.default ?? null
+		let json = null
+
+		try {
+			json = JSON.parse(localStorage[o.id])
+		} catch (err) {
+			delete localStorage[o.id]
+		}
+
+		const def = json ?? null ?? o.default ?? null
 
 		if (def !== null) defSettings[o.id] = def
 	})
