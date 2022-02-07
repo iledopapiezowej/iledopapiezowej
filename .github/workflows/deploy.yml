@@ -1,4 +1,4 @@
-name: CI/CD
+name: CD
 
 on:
   push:
@@ -7,26 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v1
-
-      - name: Install Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Run tests
-        run: yarn run test
-
-      - name: Build
-        run: yarn run build
-
   deploy:
     needs: [build]
 
