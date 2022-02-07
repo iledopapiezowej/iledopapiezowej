@@ -1,0 +1,147 @@
+import { useState } from 'react'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import ga from 'react-ga'
+
+import Socket from '../../Socket'
+
+import Nav from '../Nav'
+import Home from '../Home/Home'
+import Chat from '../Chat/Chat'
+import Page from '../Page/Page'
+import { Fun, Sub as SubFun } from '../Fun'
+import { Settings, categories } from '../Settings/Settings'
+
+import GaContext from '../../contexts/Ga.ctx'
+import SettingsContext from '../../contexts/Settings.ctx'
+import SocketContext from '../../contexts/Socket.ctx'
+
+import './style.css'
+
+const { REACT_APP_ID_GA } = process.env
+
+// Google Analytics
+if (!REACT_APP_ID_GA)
+	throw new Error('GA Tracking code required (REACT_APP_ID_GA)')
+else ga.initialize(REACT_APP_ID_GA)
+
+// default settings
+const defSettings: { [key: string]: any } = {}
+
+categories
+	.map((o) => o.sections)
+	.flat()
+	.map((o) => o.labels)
+	.flat()
+	.map((o) => ({ id: o.id, default: o.default }))
+	.forEach((o) => {
+		console.log()
+		const def = JSON.parse(localStorage[o.id] ?? null) ?? o.default ?? null
+
+		if (def !== null) defSettings[o.id] = def
+	})
+
+Object.keys(localStorage).forEach(
+	(name) => (defSettings[name] = JSON.parse(localStorage[name]))
+)
+
+var socket = new Socket()
+
+function Main() {
+	const [settings, setSettings] = useState(defSettings),
+		[count, setCount] = useState(0),
+		[invisible, setInvisible] = useState(0),
+		[sync, setSync] = useState(socket.sync)
+
+	function updateSettings(id: string, value: any) {
+		setSettings((prevSettings) => ({ ...prevSettings, [id]: value }))
+		localStorage[id] = JSON.stringify(value)
+	}
+
+	socket.addListener(
+		'onCount',
+		({ count, invisible }: { count: number; invisible: number }) => {
+			setCount(count)
+			setInvisible(invisible)
+		}
+	)
+
+	socket.addListener('onSync', (data: sync) => {
+		setSync(data)
+
+		// ga.timing({
+		// 	category: 'Socket',
+		// 	variable: 'ping',
+		// 	value: data.ping,
+		// })
+		// ga.timing({
+		// 	category: 'Socket',
+		// 	variable: 'offset',
+		// 	value: data.offset,
+		// })
+	})
+
+	return (
+		<SettingsContext.Provider value={{ settings, updateSettings }}>
+			<SocketContext.Provider value={socket}>
+				<GaContext.Provider value={ga}>
+					{/*				*/}
+					<Router>
+						<div className={['wrapper', settings.dark ? 'dark' : ''].join(' ')}>
+							<Nav
+								links={[
+									{ to: '/', header: 'Home' },
+									{ to: '/czat', header: 'Czat' },
+									{ to: '/4fun', header: '4Fun' },
+									{ to: '/ustawienia', header: 'Ustawienia' },
+								]}
+							/>
+
+							<Switch>
+								<Route path="/czat">
+									<Page id="chat">
+										<Chat />
+									</Page>
+								</Route>
+
+								<Route path="/ustawienia">
+									<Page id="settings">
+										<Settings />
+									</Page>
+								</Route>
+
+								<Route path="/4fun">
+									<Page id="fun">
+										<Fun>
+											<SubFun
+												id="clicker"
+												key="/clicker"
+												header="Clicker"
+												desc="Klikaj papieża"
+												img="/media/clicker_256.png"
+											/>
+
+											<SubFun
+												id="place"
+												key="/place"
+												header="Place"
+												desc="Stawiaj pojedyncze pixele, aby stworzyć wspólny obraz"
+												img="/media/pixel_pap.png"
+											/>
+										</Fun>
+									</Page>
+								</Route>
+							</Switch>
+
+							<Page id="home">
+								<Home count={count} invisible={invisible} sync={sync} />
+							</Page>
+						</div>
+					</Router>
+					{/*				*/}
+				</GaContext.Provider>
+			</SocketContext.Provider>
+		</SettingsContext.Provider>
+	)
+}
+
+export default Main

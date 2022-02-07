@@ -5,11 +5,11 @@
 	left: 0;
 	right: 0;
 	user-select: none;
-	font-family: 'Courier New', Courier, monospace;
+	font-family: 'Roboto Mono', Courier, monospace;
 }
 
-.lines>div {
-	transition: .15s ease-in-out;
+.lines > div {
+	transition: 0.15s ease-in-out;
 }
 
 .lines .display {
@@ -22,15 +22,15 @@
 	border-bottom: 2px solid white;
 }
 
-.lines.clock>.clock {
+.lines.clock > .clock {
 	font-size: 10vh;
 	margin-bottom: 1rem;
 }
 
-.lines.clock.display>.clock {
+.lines.clock.display > .clock {
 	font-size: 5vh;
 }
 
-.lines.display>.display {
+.lines.display > .display {
 	font-size: 8.5vh;
 }
