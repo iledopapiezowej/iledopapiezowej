@@ -1,13 +1,21 @@
-import { addListener, removeListener, triggerEvent } from './Listener'
-
 import pkg from '../package.json'
 
-const { REACT_APP_CAPTCHA_KEY } = process.env
+const { REACT_APP_CAPTCHA_KEY, REACT_APP_WS_SERVER } = process.env
 
 class Socket {
-	constructor(listeners) {
-		this.ws = null
+	ws: WebSocket
+	pending: outgoingPayload[]
+	subscribed: { [keys: string]: number }
+	sync: sync
+	retries: number // reconnect attempts
+	events: listeners
 
+	latest: messageChunk[] // older chat messages
+	captcha: string | null // captcha token
+	version: string | null // server version
+	id: string | null // connection id
+
+	constructor(listeners?: listeners) {
 		this.pending = []
 
 		this.subscribed = {
@@ -15,27 +23,31 @@ class Socket {
 		}
 
 		this.sync = {
-			begin: null,
-			end: null,
-			rtt: null,
-			ping: null,
-			diff: null, // time difference
-			offset: null, // corrected time difference
+			begin: 0,
+			end: 0,
+			rtt: 0,
+			ping: 0,
+			diff: 0,
+			offset: 0,
 		}
-		this.retries = 0 // reconnect attempts
+		this.retries = 0
 
-		this.addListener = addListener
-		this.removeListener = removeListener
-		this.triggerEvent = triggerEvent
+		this.captcha = null
+		this.version = null
+		this.id = null
 
-		for (let name in listeners) this.addListener(name, listeners[name])
+		this.events = {}
 
-		this.latest = [] // older chat messages
-		this.addListener('onChatReceive', (chunk) => {
+		for (let name in listeners)
+			for (let listener of listeners[name]) this.addListener(name, listener)
+
+		this.latest = []
+		this.addListener('onChatReceive', (chunk: messageChunk) => {
 			// skip messages already cached
+			// TODO: move to receive-latest-on-connect event
 			if (this.latest.find((e) => e.mid === chunk.mid)) return
 
-			// ensure meta property exist
+			// ensure meta properties exist
 			chunk.mid || (chunk.mid = Math.random().toString(36).slice(2, 9))
 			chunk.time || (chunk.time = new Date().toISOString())
 
@@ -43,14 +55,37 @@ class Socket {
 			if (this.latest.length > 100) this.latest.unshift()
 		})
 
+		this.ws = new WebSocket(REACT_APP_WS_SERVER)
 		this.open()
 	}
 
+	addListener(name: string, callback: listener): number {
+		if (!Array.isArray(this.events[name])) this.events[name] = []
+
+		this.events[name].push(callback)
+
+		return this.events[name].length - 1
+	}
+
+	removeListener(name: string, i: number) {
+		this.events[name].splice(i, 1)
+	}
+
+	private triggerEvent(name: string, payload: any) {
+		if (typeof this.events[name] !== 'undefined')
+			for (let callback of this.events[name]) {
+				callback(payload, this)
+			}
+	}
+
+	private _connect() {
+		this.ws = new WebSocket(REACT_APP_WS_SERVER)
+	}
+
 	open() {
-		this.ws = new WebSocket(process.env.REACT_APP_WS_SERVER)
-		// this.ws = new WebSocket(`wss://iledopapiezowej.pl/ws/`)
-		// this.ws = new WebSocket(`wss://beta.iledopapiezowej.pl/ws/`)
-		// this.ws = new WebSocket(`ws://localhost:5502`)
+		if (this.ws) {
+			if (this.ws.readyState !== WebSocket.OPEN) this._connect()
+		} else this._connect()
 
 		this.ws.onopen = () => {
 			console.info(`Socket connected`)
@@ -100,7 +135,7 @@ class Socket {
 		}
 
 		this.ws.onmessage = (e) => {
-			let data = JSON.parse(e.data)
+			let data: incomingPayload[] = JSON.parse(e.data)
 
 			// wrap in an array anyways
 			if (!Array.isArray(data)) data = [data]
@@ -119,20 +154,23 @@ class Socket {
 					this.version = chunk.version
 					this.id = chunk.id
 
-					let supports = chunk.supports.split('.'),
-						version = pkg.version.split('.'),
-						isSupported = true
+					// TODO: make sense of this
 
-					for (let i in supports) {
-						if (supports[i] > version[i]) {
-							isSupported = false
-							break
-						}
-						if (supports[i] < version[i]) {
-							isSupported = true
-							break
-						}
-					}
+					let isSupported = true
+
+					// supports = chunk.supports.split('.'),
+					// version = pkg.version.split('.'),
+
+					// for (let i in supports) {
+					// 	if (supports[i] > version[i]) {
+					// 		isSupported = false
+					// 		break
+					// 	}
+					// 	if (supports[i] < version[i]) {
+					// 		isSupported = true
+					// 		break
+					// 	}
+					// }
 
 					console.info(
 						`id: ${chunk.id}, Client: ${pkg.version}, Server: ${chunk.version}, Supports: ${chunk.supports} (${isSupported})`
@@ -219,7 +257,7 @@ class Socket {
 			}, 4e3)
 	}
 
-	send(object) {
+	send(object: outgoingPayload) {
 		if (this.ws.readyState !== WebSocket.OPEN) {
 			console.debug('Pending', object)
 			return this.pending.push(object)
@@ -229,25 +267,25 @@ class Socket {
 		console.debug(`Sending`, object)
 	}
 
-	getCaptcha(action) {
+	getCaptcha(action: string): PromiseLike<string> {
 		console.info('Requesting captcha token')
 		return window.grecaptcha
 			.execute(REACT_APP_CAPTCHA_KEY, { action })
-			.then((token) => {
+			.then((token: string) => {
 				console.info('Received captcha')
 				this.captcha = token
 				return token
 			})
 	}
 
-	visibility(visible) {
+	visibility(visible: boolean) {
 		this.send({
 			type: 'count',
 			visible: visible,
 		})
 	}
 
-	subscribe(type) {
+	subscribe(type: string) {
 		if (this.subscribed[type] < 1) {
 			this.send({
 				type,
@@ -259,7 +297,7 @@ class Socket {
 			: (this.subscribed[type] = 1)
 	}
 
-	unsubscribe(type) {
+	unsubscribe(type: string) {
 		if (this.subscribed[type] === 1) {
 			this.send({
 				type,

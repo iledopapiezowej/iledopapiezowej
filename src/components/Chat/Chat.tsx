@@ -1,88 +1,81 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+
+import SocketContext from '../../contexts/Socket.ctx'
 
 import { ReactComponent as Send } from './send.svg'
 import { ReactComponent as Down } from './down.svg'
 
 import './index.css'
 import './roles.css'
-import Socket from '../../contexts/Socket.js'
 
 function Message({
-	id = null,
-	time = '',
+	mid,
+	time: timestamp,
 	nick = 'local',
 	role = '',
 	self = false,
 	content = '',
-}) {
-	time = new Date(time)
+}: messageProps) {
+	const time = new Date(timestamp)
+
 	return (
 		<div className="message" data-self={self}>
-			<span className={['nick', role].join(' ')} data-id={id}>
+			<span className={['nick', role].join(' ')} data-id={mid}>
 				{nick}
 			</span>
 
 			<span className="content">{content}</span>
 			<span className="time" title={time.toString()}>
-				{time.toISOString().slice(11, -5)}
+				{time.getHours().toString().padStart(2, '0') +
+					':' +
+					time.getMinutes().toString().padStart(2, '0') +
+					':' +
+					time.getSeconds().toString().padStart(2, '0')}
 			</span>
 		</div>
 	)
 }
 
 var newMessage = false,
-	scrollBefore = null
+	scrollBefore = 0
 
-function Chat({ show = true, messageLimit = 300 }) {
-	const socket = useContext(Socket)
+function Chat({ show = true, messageLimit = 300 }: chatProps) {
+	const socket = useContext(SocketContext)
 
 	const [messages, setMessages] = useState(socket.latest),
 		[autoscroll, setAutoscroll] = useState(true)
 
-	const list = useRef(null),
-		last = useRef(null),
-		input = useRef(null)
+	const list = useRef<HTMLDivElement>(null),
+		last = useRef<HTMLDivElement>(null),
+		input = useRef<HTMLInputElement>(null)
 
-	function scroll() {
-		if (autoscroll)
-			if (list.current) {
+	function scroll(force: boolean = false) {
+		if (autoscroll || force)
+			if (list.current)
 				if (list.current.lastChild)
-					last.current.scrollIntoView({
+					last.current?.scrollIntoView({
 						// behavior: 'smooth',
 						block: 'end',
 						inline: 'nearest',
 					})
-			}
-	}
-
-	function command(args) {
-		if (args[0] === 'nick') {
-			console.log(args[1])
-			return true
-		}
-
-		return true
 	}
 
 	function send() {
-		let content = input.current.value
+		let content = (input && input.current && input.current.value) ?? ''
 
 		if (content.length < 1) return
 
-		if (content.startsWith('/')) {
-			if (!command(content.slice(1).split(' '))) return
-		}
-
 		socket.send({
 			type: 'chat',
-			content: content,
+			content,
 		})
 
-		input.current.value = ''
+		input && input.current && (input.current.value = '')
+		scroll(true)
 	}
 
 	useEffect(() => {
-		let e = socket.addListener('onChatReceive', () => {
+		let listener = socket.addListener('onChatReceive', () => {
 			setMessages(socket.latest.slice(-messageLimit))
 
 			newMessage = true
@@ -93,7 +86,7 @@ function Chat({ show = true, messageLimit = 300 }) {
 
 		return () => {
 			socket.unsubscribe('chat')
-			socket.removeListener('onChatReceive', e)
+			socket.removeListener('onChatReceive', listener)
 		}
 	}, []) // eslint-disable-line
 
@@ -102,28 +95,31 @@ function Chat({ show = true, messageLimit = 300 }) {
 			<div
 				className="messages"
 				ref={list}
+				data-testid="messages"
 				onScroll={(e) => {
+					const target = e.target as HTMLDivElement
+
 					// only on user scroll
 					if (!newMessage) {
 						// user scrolls up
-						if (e.target.scrollTop < scrollBefore) {
+						if (target.scrollTop < scrollBefore) {
 							setAutoscroll(false)
 						}
 
 						// user scrolls to bottom
 						if (
-							e.target.scrollTop ===
-							e.target.scrollHeight - e.target.offsetHeight
+							target.scrollTop ===
+							target.scrollHeight - target.offsetHeight
 						) {
 							setAutoscroll(true)
 						}
 					}
 
 					newMessage = false
-					scrollBefore = e.target.scrollTop
+					scrollBefore = target.scrollTop
 				}}
 			>
-				{messages.map((message) => (
+				{messages.map((message: messageChunk) => (
 					<Message
 						key={message.mid}
 						self={message.uid === socket.id}
@@ -135,10 +131,10 @@ function Chat({ show = true, messageLimit = 300 }) {
 
 			<Down
 				className="scrolllock"
-				data-enabled={autoscroll}
+				data-enabled={!autoscroll}
 				onClick={() => {
-					scroll()
 					setAutoscroll(true)
+					scroll(true)
 				}}
 			/>
 
@@ -146,7 +142,7 @@ function Chat({ show = true, messageLimit = 300 }) {
 				<input
 					type="text"
 					ref={input}
-					maxLength="120"
+					maxLength={120}
 					autoComplete="off"
 					placeholder="czat"
 					onKeyDown={(e) => {

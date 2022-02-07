@@ -1,11 +1,21 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
-import GaContext from '../../contexts/Ga'
-import SettingsContext from '../../contexts/Settings'
+import GaContext from '../../contexts/Ga.ctx'
+import SettingsContext from '../../contexts/Settings.ctx'
 
 import './style.css'
 import { ReactComponent as CaretUp } from './caret-up.svg'
 import { ReactComponent as Close } from './close.svg'
+
+type promoProps = {
+	hidden: boolean
+	closedDefault: boolean
+	header: string
+	link: string
+	thumb: string
+	content: string
+	id: number
+}
 
 function Promo({
 	hidden = true,
@@ -15,8 +25,8 @@ function Promo({
 	thumb,
 	content,
 	id,
-}) {
-	const settings = useContext(SettingsContext),
+}: promoProps) {
+	const { updateSettings } = useContext(SettingsContext),
 		ga = useContext(GaContext)
 
 	const [open, setOpen] = useState(false),
@@ -24,7 +34,7 @@ function Promo({
 
 	useEffect(() => {
 		if (closed) {
-			settings.set('promo-' + id, closed)
+			updateSettings('promo-' + id, closed)
 		}
 	}, [closed]) // eslint-disable-line
 

@@ -26,15 +26,6 @@
 	scroll-margin: -5em;
 }
 
-@keyframes appear {
-	from {
-		transform: rotateY(90deg);
-	}
-	to {
-		transform: rotateY(0deg);
-	}
-}
-
 .message {
 	overflow: hidden;
 	text-align: left;
@@ -105,6 +96,15 @@
 	height: 2em;
 }
 
+@keyframes appear {
+	from {
+		transform: rotateY(90deg);
+	}
+	to {
+		transform: rotateY(0deg);
+	}
+}
+
 .scrolllock {
 	position: absolute;
 	left: 0;
@@ -113,11 +113,14 @@
 	bottom: 4em;
 	height: 2em;
 	cursor: pointer;
-	animation: appear 0.3s;
+	transform: rotateY(90deg);
+	pointer-events: none;
+	transition-duration: 0.3s;
 }
 
 .scrolllock[data-enabled='true'] {
-	display: none;
+	pointer-events: initial;
+	transform: rotateY(0deg);
 }
 
 .input > * {

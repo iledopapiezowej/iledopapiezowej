@@ -4,13 +4,12 @@ import { Label, LabelLink, Field, Toggle } from './Labels'
 
 import pkg from '../../../package.json'
 
-import SettingsContext from '../../contexts/Settings'
-import SocketContext from '../../contexts/Socket'
+import SettingsContext from '../../contexts/Settings.ctx'
 
 import './style.css'
 import './labels.css'
 
-var categories = [
+var categories: categoryType[] = [
 	{
 		id: 'visuals',
 		header: 'Wygląd',
@@ -83,7 +82,6 @@ var categories = [
 		header: 'Info',
 		sections: [
 			{
-				// app
 				id: 'app',
 				header: 'Aplikacja',
 				labels: [
@@ -100,7 +98,8 @@ var categories = [
 						desc: `${new Date(
 							pkg.lastUpdate
 						).toLocaleDateString()}, ${Math.floor(
-							(new Date() - new Date(pkg.lastUpdate)) / (1e3 * 60 * 60 * 24)
+							(new Date().getTime() - new Date(pkg.lastUpdate).getTime()) /
+								(1e3 * 60 * 60 * 24)
 						)} dni temu`,
 					},
 					{
@@ -113,7 +112,6 @@ var categories = [
 				],
 			},
 			{
-				// server
 				id: 'server',
 				header: 'Serwer',
 				labels: [
@@ -138,7 +136,6 @@ var categories = [
 				],
 			},
 			{
-				// contact
 				id: 'contact',
 				header: 'Kontakt',
 				labels: [
@@ -166,20 +163,21 @@ var categories = [
 				],
 			},
 			{
-				// rules
 				id: 'rules',
 				header: 'Regulamin',
 				labels: [
 					{
 						id: 'general',
 						type: 'field',
-						header: 'Ogólne',
+						caption: 'Ogólne',
+						desc: 'Zasady dotyczące użytkowania strony',
 						content: `1. Nie biorę odpowiedzialności za jakiekolwiek zawartości wysłane przez innych użytkowników\n2. Administracja zastrzega sobie prawo do usunięcia/zbanowania/zablokowania IP użytkownika bez szczególnego uzasadnienia.`,
 					},
 					{
 						id: 'cookies',
 						type: 'field',
-						header: 'Cookies',
+						caption: 'Cookies',
+						desc: 'Zasady dotyczące cookies',
 						content: `Używamy cookies do utrzymywania statystyk poprzez Google Analytics. Pozostając na stronie wyrażasz zgode na ich użycie.`,
 					},
 				],
@@ -188,127 +186,109 @@ var categories = [
 	},
 ]
 
-class Tab extends React.Component {
-	static defaultProps = {
-		id: '',
-		header: '',
-		active: false,
-		onClick: function () {},
-	}
-
-	render() {
-		return (
-			<div
-				className={[
-					'tab',
-					this.props.id,
-					this.props.active ? 'active' : '',
-				].join(' ')}
-				onClick={() => {
-					this.props.onClick(this.props.id)
-				}}
-			>
-				{this.props.header}
-			</div>
-		)
-	}
+type TabProps = {
+	id: string
+	header: string
+	active: boolean
+	onClick: (id: string) => unknown
 }
 
-class Category extends React.Component {
-	static defaultProps = {
-		id: '',
-		header: '',
-		sections: {},
-		settings: {},
-		values: {},
-		active: false,
-	}
-
-	render() {
-		return (
-			<div
-				className={['category', this.props.active ? 'active' : ''].join(' ')}
-			>
-				<h2>{this.props.header}</h2>
-				{this.props.sections.map((section) => {
-					return (
-						<Section
-							key={section.id}
-							header={section.header}
-							labels={section.labels}
-							values={this.props.values}
-							update={this.props.update}
-						/>
-					)
-				})}
-			</div>
-		)
-	}
+function Tab({ id, header, active, onClick }: TabProps) {
+	return (
+		<div
+			className={['tab', id, active ? 'active' : ''].join(' ')}
+			onClick={() => {
+				onClick(id)
+			}}
+		>
+			{header}
+		</div>
+	)
 }
 
-class Section extends React.Component {
-	static defaultProps = {
-		key: '',
-		header: '',
-		labels: {},
-		values: {},
-		onUpdate: function () {},
-	}
+function Category({
+	id,
+	header,
+	sections,
+	active,
+}: categoryType & { active: boolean }) {
+	return (
+		<div className={['category', active ? 'active' : ''].join(' ')}>
+			<h2>{header}</h2>
 
-	render() {
-		return (
-			<div className="section" key={this.props.header}>
-				<div className="header">{this.props.header}</div>
-
-				{this.props.labels.map((label) => {
-					switch (label.type) {
-						default:
-						case 'text':
-							return <Label key={label.id} {...label} />
-
-						case 'link-external':
-							var external = true
-
-						// eslint-disable-next-line
-						case 'link':
-							return <LabelLink key={label.id} external={external} {...label} />
-
-						case 'field':
-							return <Field key={label.id} {...label} />
-
-						case 'toggle':
-							return (
-								<Toggle
-									key={label.id}
-									{...label}
-									default={this.props.values[label.id]}
-									update={this.props.update}
-								/>
-							)
-					}
-				})}
-			</div>
-		)
-	}
+			{sections.map((section) => {
+				return (
+					<Section
+						key={section.id}
+						id={section.id}
+						header={section.header}
+						labels={section.labels}
+					/>
+				)
+			})}
+		</div>
+	)
 }
 
-function Settings(props) {
+function Section({ id, header, labels }: sectionType) {
+	let { settings, updateSettings } = useContext(SettingsContext)
+
+	return (
+		<div className="section" key={header}>
+			<div className="header">{header}</div>
+
+			{labels.map((label) => {
+				switch (label.type) {
+					default:
+					case 'text':
+						return <Label key={label.id} {...label} />
+
+					case 'link-external':
+					case 'link':
+						return (
+							<LabelLink
+								key={label.id}
+								external={label.type === 'link-external'}
+								{...label}
+							/>
+						)
+
+					case 'field':
+						return <Field key={label.id} {...label} />
+
+					case 'toggle':
+						return (
+							<Toggle
+								key={label.id}
+								{...label}
+								def={settings[label.id]}
+								onClick={updateSettings}
+							/>
+						)
+				}
+			})}
+		</div>
+	)
+}
+
+function Settings() {
 	const [active, setActive] = useState(categories[0].id)
 
-	let socket = useContext(SocketContext)
+	// let socket = useContext(SocketContext)
 
-	let server = categories
-			.find((category) => category.id === 'about')
-			.sections.find((section) => section.id === 'server'),
-		values = {
-			status: socket.sync.ping > 0 ? 'Połączono ✅' : 'Rozłączono ❌',
-			ping: `${Math.floor(socket.sync.ping)}ms`,
-			offset: `${Math.floor(socket.sync.offset)}ms`,
-		}
+	// let server = categories
+	// 		.find((category) => category.id === 'about')
+	// 		.sections.find((section) => section.id === 'server'),
 
-	for (let v in values) {
-		server.labels.find((label) => label.id === v).desc = values[v]
-	}
+	// 	values = {
+	// 		status: socket.sync.ping > 0 ? 'Połączono ✅' : 'Rozłączono ❌',
+	// 		ping: `${Math.floor(socket.sync.ping)}ms`,
+	// 		offset: `${Math.floor(socket.sync.offset)}ms`,
+	// 	}
+
+	// for (let v in values) {
+	// 	server.labels.find((label) => label.id === v).desc = values[v]
+	// }
 
 	return (
 		<>
@@ -322,28 +302,20 @@ function Settings(props) {
 								id={category.id}
 								header={category.header}
 								active={active === category.id ? true : false}
-								onClick={(id) => {
-									setActive(id)
-								}}
+								onClick={(id) => setActive(id)}
 							/>
 						)
 					})}
 				</div>
-				<SettingsContext.Consumer>
-					{(settings) => {
-						return categories.map((category) => (
-							<Category
-								key={category.id}
-								id={category.id}
-								header={category.header}
-								active={active === category.id ? true : false}
-								sections={category.sections}
-								values={settings.values}
-								update={settings.set}
-							/>
-						))
-					}}
-				</SettingsContext.Consumer>
+				{categories.map((category) => (
+					<Category
+						key={category.id}
+						id={category.id}
+						header={category.header}
+						active={active === category.id ? true : false}
+						sections={category.sections}
+					/>
+				))}
 			</div>
 		</>
 	)
