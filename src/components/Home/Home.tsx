@@ -68,8 +68,6 @@ function Home({ sync, count, invisible }: HomeProps) {
 		})
 	}
 
-	console.log(settings['promo-' + 3])
-
 	return (
 		<div
 			className={[event ? 'event' : '', settings.rainbow ? 'rainbow' : ''].join(
