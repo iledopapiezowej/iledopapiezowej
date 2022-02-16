@@ -2,6 +2,8 @@ import { useState } from 'react'
 
 import Checkbox from '../Checkbox/Checkbox'
 
+import { labelType } from './Settings'
+
 function Label({ caption, desc }: labelType) {
 	return (
 		<label className="label text">

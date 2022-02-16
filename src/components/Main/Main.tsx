@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import ga from 'react-ga'
 
-import Socket from '../../Socket'
+import Socket, { sync } from '../../Socket'
 
 import Nav from '../Nav'
 import Home from '../Home/Home'
@@ -64,13 +64,10 @@ function Main() {
 		localStorage[id] = JSON.stringify(value)
 	}
 
-	socket.addListener(
-		'onCount',
-		({ count, invisible }: { count: number; invisible: number }) => {
-			setCount(count)
-			setInvisible(invisible)
-		}
-	)
+	socket.addListener('onCount', ({ count, invisible }) => {
+		setCount(count)
+		setInvisible(invisible)
+	})
 
 	socket.addListener('onSync', (data: sync) => {
 		setSync(data)

@@ -11,6 +11,8 @@ import pkg from '../../../package.json'
 import GaContext from '../../contexts/Ga.ctx'
 import SettingsContext from '../../contexts/Settings.ctx'
 
+import { sync } from '../../Socket'
+
 import './style.css'
 
 // fetch and update promo properties
@@ -77,7 +79,7 @@ function Home({ sync, count, invisible }: HomeProps) {
 			<Counter
 				doClock={settings.clock}
 				doDisplay={settings.display}
-				target={[20, 30, 0, 0]}
+				target={[21, 37, 0, 0]}
 				onEventStart={(elapsed: number) => {
 					eventStart(elapsed)
 				}}

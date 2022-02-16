@@ -2,6 +2,43 @@ import pkg from '../package.json'
 
 const { REACT_APP_CAPTCHA_KEY, REACT_APP_WS_SERVER } = process.env
 
+export type listener = (chunk: any) => void
+
+export type listeners = {
+	[key: string]: listener[]
+}
+
+export type sync = {
+	begin: number
+	end: number
+	rtt: number
+	ping: number
+	diff: number // time difference
+	offset: number // corrected time difference
+}
+
+export type messageChunk = {
+	nick: string
+	role: string
+	uid?: string
+	content: string
+	time: string
+	type: string
+	mid: string
+}
+
+export interface outgoingPayload {
+	type: string
+	flag?: string
+	[key: string]: any
+}
+
+export interface incomingPayload {
+	type: string
+	flag?: string
+	[key: string]: any
+}
+
 class Socket {
 	ws: WebSocket
 	pending: outgoingPayload[]

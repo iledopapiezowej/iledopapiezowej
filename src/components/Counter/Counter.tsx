@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import { sync } from '../../Socket'
+
 import './style.css'
 
 type counterProps = {

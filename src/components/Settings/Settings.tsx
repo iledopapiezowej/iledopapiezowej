@@ -9,6 +9,30 @@ import SettingsContext from '../../contexts/Settings.ctx'
 import './style.css'
 import './labels.css'
 
+export type labelType = {
+	id: string
+	type: 'toggle' | 'text' | 'link' | 'link-external' | 'field'
+	caption: string
+	desc: string
+
+	default?: boolean | undefined
+	href?: string
+	content?: string
+	external?: boolean
+}
+
+type sectionType = {
+	id: string
+	header: string
+	labels: labelType[]
+}
+
+type categoryType = {
+	id: string
+	header: string
+	sections: sectionType[]
+}
+
 var categories: categoryType[] = [
 	{
 		id: 'visuals',
