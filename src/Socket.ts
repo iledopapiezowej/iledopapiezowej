@@ -2,8 +2,45 @@ import pkg from '../package.json'
 
 const { REACT_APP_CAPTCHA_KEY, REACT_APP_WS_SERVER } = process.env
 
+export type listener = (chunk: any) => void
+
+export type listeners = {
+	[key: string]: listener[]
+}
+
+export type sync = {
+	begin: number
+	end: number
+	rtt: number
+	ping: number
+	diff: number // time difference
+	offset: number // corrected time difference
+}
+
+export type messageChunk = {
+	nick: string
+	role: string
+	uid?: string
+	content: string
+	time: string
+	type: string
+	mid: string
+}
+
+export interface outgoingPayload {
+	type: string
+	flag?: string
+	[key: string]: any
+}
+
+export interface incomingPayload {
+	type: string
+	flag?: string
+	[key: string]: any
+}
+
 class Socket {
-	ws: WebSocket
+	ws!: WebSocket
 	pending: outgoingPayload[]
 	subscribed: { [keys: string]: number }
 	sync: sync
@@ -55,7 +92,6 @@ class Socket {
 			if (this.latest.length > 100) this.latest.unshift()
 		})
 
-		this.ws = new WebSocket(REACT_APP_WS_SERVER)
 		this.open()
 	}
 
@@ -74,18 +110,12 @@ class Socket {
 	private triggerEvent(name: string, payload: any) {
 		if (typeof this.events[name] !== 'undefined')
 			for (let callback of this.events[name]) {
-				callback(payload, this)
+				callback(payload)
 			}
 	}
 
-	private _connect() {
-		this.ws = new WebSocket(REACT_APP_WS_SERVER)
-	}
-
 	open() {
-		if (this.ws) {
-			if (this.ws.readyState !== WebSocket.OPEN) this._connect()
-		} else this._connect()
+		this.ws = new WebSocket(REACT_APP_WS_SERVER)
 
 		this.ws.onopen = () => {
 			console.info(`Socket connected`)

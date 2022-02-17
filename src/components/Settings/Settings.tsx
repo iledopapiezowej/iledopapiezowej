@@ -1,13 +1,36 @@
-import React, { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 
 import { Label, LabelLink, Field, Toggle } from './Labels'
-
-import pkg from '../../../package.json'
 
 import SettingsContext from '../../contexts/Settings.ctx'
 
 import './style.css'
 import './labels.css'
+import socketContext from '../../contexts/Socket.ctx'
+
+export type labelType = {
+	id: string
+	type: 'toggle' | 'text' | 'link' | 'link-external' | 'field'
+	caption: string
+	desc: string
+
+	default?: boolean | undefined
+	href?: string
+	content?: string
+	external?: boolean
+}
+
+type sectionType = {
+	id: string
+	header: string
+	labels: labelType[]
+}
+
+type categoryType = {
+	id: string
+	header: string
+	sections: sectionType[]
+}
 
 var categories: categoryType[] = [
 	{
@@ -88,19 +111,8 @@ var categories: categoryType[] = [
 					{
 						id: 'version',
 						type: 'text',
-						caption: 'Wersja',
-						desc: `v${pkg.version}`,
-					},
-					{
-						id: 'lastUpdate',
-						type: 'text',
-						caption: 'Ostatni update',
-						desc: `${new Date(
-							pkg.lastUpdate
-						).toLocaleDateString()}, ${Math.floor(
-							(new Date().getTime() - new Date(pkg.lastUpdate).getTime()) /
-								(1e3 * 60 * 60 * 24)
-						)} dni temu`,
+						caption: 'Commit',
+						desc: process.env.GITHUB_SHA ?? '???????',
 					},
 					{
 						id: 'author',
@@ -119,19 +131,19 @@ var categories: categoryType[] = [
 						id: 'status',
 						type: 'text',
 						caption: 'Status',
-						desc: ``,
+						desc: '',
 					},
 					{
 						id: 'ping',
 						type: 'text',
 						caption: 'Ping',
-						desc: ``,
+						desc: '',
 					},
 					{
 						id: 'offset',
 						type: 'text',
 						caption: 'Opóźnienie',
-						desc: ``,
+						desc: '',
 					},
 				],
 			},
@@ -272,23 +284,21 @@ function Section({ id, header, labels }: sectionType) {
 }
 
 function Settings() {
-	const [active, setActive] = useState(categories[0].id)
+	const [active, setActive] = useState(categories[0].id),
+		socket = useContext(socketContext)
 
-	// let socket = useContext(SocketContext)
-
-	// let server = categories
-	// 		.find((category) => category.id === 'about')
-	// 		.sections.find((section) => section.id === 'server'),
-
-	// 	values = {
-	// 		status: socket.sync.ping > 0 ? 'Połączono ✅' : 'Rozłączono ❌',
-	// 		ping: `${Math.floor(socket.sync.ping)}ms`,
-	// 		offset: `${Math.floor(socket.sync.offset)}ms`,
-	// 	}
-
-	// for (let v in values) {
-	// 	server.labels.find((label) => label.id === v).desc = values[v]
-	// }
+	categories
+		.find((category) => category.id === 'about')
+		?.sections.find((section) => section.id === 'server')
+		?.labels.map(
+			(label) =>
+				(label.desc =
+					{
+						status: socket.sync.ping > 0 ? 'Połączono ✅' : 'Rozłączono ❌',
+						ping: `${Math.floor(socket.sync.ping)}ms`,
+						offset: `${Math.floor(socket.sync.offset)}ms`,
+					}[label.id] ?? '')
+		)
 
 	return (
 		<>

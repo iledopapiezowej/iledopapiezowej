@@ -5,8 +5,17 @@ import SocketContext from '../../contexts/Socket.ctx'
 import { ReactComponent as Send } from './send.svg'
 import { ReactComponent as Down } from './down.svg'
 
+import { messageChunk } from '../../Socket'
+
 import './index.css'
 import './roles.css'
+
+type messageProps = messageChunk & { self: boolean }
+
+type chatProps = {
+	show?: boolean
+	messageLimit?: number
+}
 
 function Message({
 	mid,
