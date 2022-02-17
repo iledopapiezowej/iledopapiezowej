@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom'
 
-import Main from './components/Main/Main'
+import Main from './Main'
 
 import './index.css'
 
