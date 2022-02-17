@@ -13,12 +13,12 @@ function Label({ caption, desc }: labelType) {
 	)
 }
 
-function LabelLink({ caption, external, content, href = '#' }: labelType) {
+function LabelLink({ caption, external, desc, href = '#' }: labelType) {
 	return (
 		<label className="label text link">
 			<span className="caption">{caption}</span>
 			<a href={href} target={external ? '_blank' : '_self'} rel="noreferrer">
-				<span className="desc">{content ?? href}</span>
+				<span className="desc">{desc ?? href}</span>
 			</a>
 		</label>
 	)

@@ -43,9 +43,13 @@ categories
 		if (def !== null) defSettings[o.id] = def
 	})
 
-Object.keys(localStorage).forEach(
-	(name) => (defSettings[name] = JSON.parse(localStorage[name]))
-)
+Object.keys(localStorage).forEach((name) => {
+	try {
+		defSettings[name] = JSON.parse(localStorage[name])
+	} catch (err) {
+		defSettings[name] = null
+	}
+})
 
 var socket = new Socket()
 
