@@ -2,27 +2,23 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import ga from 'react-ga'
 
-import Socket from '../../Socket'
+import Socket, { sync } from './Socket'
 
-import Nav from '../Nav'
-import Home from '../Home/Home'
-import Chat from '../Chat/Chat'
-import Page from '../Page/Page'
-import { Fun, Sub as SubFun } from '../Fun'
-import { Settings, categories } from '../Settings/Settings'
+import Nav from './components/Nav'
+import Home from './components/Home/Home'
+import Chat from './components/Chat/Chat'
+import Page from './components/Page/Page'
+import { Fun, Sub as SubFun } from './components/Fun'
+import { Settings, categories } from './components/Settings/Settings'
 
-import GaContext from '../../contexts/Ga.ctx'
-import SettingsContext from '../../contexts/Settings.ctx'
-import SocketContext from '../../contexts/Socket.ctx'
-
-import './style.css'
+import GaContext from './contexts/Ga.ctx'
+import SettingsContext from './contexts/Settings.ctx'
+import SocketContext from './contexts/Socket.ctx'
 
 const { REACT_APP_ID_GA } = process.env
 
 // Google Analytics
-if (!REACT_APP_ID_GA)
-	throw new Error('GA Tracking code required (REACT_APP_ID_GA)')
-else ga.initialize(REACT_APP_ID_GA)
+ga.initialize(REACT_APP_ID_GA)
 
 // default settings
 const defSettings: { [key: string]: any } = {}
@@ -47,9 +43,13 @@ categories
 		if (def !== null) defSettings[o.id] = def
 	})
 
-Object.keys(localStorage).forEach(
-	(name) => (defSettings[name] = JSON.parse(localStorage[name]))
-)
+Object.keys(localStorage).forEach((name) => {
+	try {
+		defSettings[name] = JSON.parse(localStorage[name])
+	} catch (err) {
+		defSettings[name] = null
+	}
+})
 
 var socket = new Socket()
 
@@ -64,13 +64,10 @@ function Main() {
 		localStorage[id] = JSON.stringify(value)
 	}
 
-	socket.addListener(
-		'onCount',
-		({ count, invisible }: { count: number; invisible: number }) => {
-			setCount(count)
-			setInvisible(invisible)
-		}
-	)
+	socket.addListener('onCount', ({ count, invisible }) => {
+		setCount(count)
+		setInvisible(invisible)
+	})
 
 	socket.addListener('onSync', (data: sync) => {
 		setSync(data)

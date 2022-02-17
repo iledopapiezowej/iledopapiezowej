@@ -56,3 +56,50 @@ a:hover {
 .grecaptcha-badge {
 	display: none;
 }
+
+.wrapper {
+	transition: background-color 0.2s;
+	/* background-color: hsl(0deg 0% 88%); */
+	color: hsl(213, 9%, 25%);
+	height: 100vh;
+	/* overflow-y: auto; */
+	overflow-x: hidden;
+	position: relative;
+
+	background-image: url('./media/funky-lines.png');
+	/* background-blend-mode: color; */
+}
+
+.wrapper > * {
+	--margin: 1rem;
+	transition: inherit;
+	background-color: hsl(0, 0%, 91%);
+	margin: var(--margin) 1.5rem;
+	border-radius: 3px;
+	position: relative;
+}
+
+.wrapper > .container {
+	height: calc(100vh - ((3 * var(--margin)) + 2rem));
+	overflow-y: auto;
+}
+
+@media screen and (max-width: 990px) {
+	.wrapper > * {
+		--margin: 0.7rem;
+		margin: var(--margin) 0.7rem;
+	}
+}
+
+/* ///////// */
+/* Dark Mode */
+
+.wrapper.dark {
+	background-color: hsl(0, 2%, 12%);
+	background-blend-mode: color-burn;
+}
+
+.wrapper.dark > * {
+	background-color: hsl(0deg 1% 16%);
+	color: hsl(180deg 8% 90%);
+}

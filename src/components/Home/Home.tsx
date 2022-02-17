@@ -6,10 +6,10 @@ import Player from '../Player/Player'
 import Chat from '../Chat/Chat'
 import Promo from '../Promo/Promo'
 
-import pkg from '../../../package.json'
-
 import GaContext from '../../contexts/Ga.ctx'
 import SettingsContext from '../../contexts/Settings.ctx'
+
+import { sync } from '../../Socket'
 
 import './style.css'
 
@@ -77,7 +77,7 @@ function Home({ sync, count, invisible }: HomeProps) {
 			<Counter
 				doClock={settings.clock}
 				doDisplay={settings.display}
-				target={[20, 30, 0, 0]}
+				target={[21, 37, 0, 0]}
 				onEventStart={(elapsed: number) => {
 					eventStart(elapsed)
 				}}
@@ -104,7 +104,12 @@ function Home({ sync, count, invisible }: HomeProps) {
 
 			<div className="clear"></div>
 
-			<span className="copyright">iledopapiezowej © 2020 v{pkg.version}</span>
+			<span className="copyright">
+				iledopapiezowej © 2020 #
+				{process.env.NODE_ENV === 'production'
+					? (process.env.GITHUB_SHA ?? '__pro__').slice(0, 7)
+					: '__dev__'}
+			</span>
 		</div>
 	)
 }
