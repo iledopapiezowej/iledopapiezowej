@@ -107,7 +107,7 @@ function Home({ sync, count, invisible }: HomeProps) {
 			<span className="copyright">
 				iledopapiezowej © 2020 #
 				{process.env.NODE_ENV === 'production'
-					? (process.env.GITHUB_SHA ?? '__pro__').slice(0, 7)
+					? (process.env.REACT_APP_GITHUB_SHA ?? '__pro__').slice(0, 7)
 					: '__dev__'}
 			</span>
 		</div>

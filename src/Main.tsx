@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
-import ga from 'react-ga'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import ga from 'react-ga4'
 
 import Socket, { sync } from './Socket'
 
@@ -100,41 +100,51 @@ function Main() {
 								]}
 							/>
 
-							<Switch>
-								<Route path="/czat">
-									<Page id="chat">
-										<Chat />
-									</Page>
-								</Route>
+							<Routes>
+								<Route path="/" element={<></>} />
+								<Route
+									path="/czat"
+									element={
+										<Page id="chat">
+											<Chat />
+										</Page>
+									}
+								/>
 
-								<Route path="/ustawienia">
-									<Page id="settings">
-										<Settings />
-									</Page>
-								</Route>
+								<Route
+									path="/ustawienia"
+									element={
+										<Page id="settings">
+											<Settings />
+										</Page>
+									}
+								/>
 
-								<Route path="/4fun">
-									<Page id="fun">
-										<Fun>
-											<SubFun
-												id="clicker"
-												key="/clicker"
-												header="Clicker"
-												desc="Klikaj papieża"
-												img="/media/clicker_256.png"
-											/>
+								<Route
+									path="/4fun"
+									element={
+										<Page id="fun">
+											<Fun>
+												<SubFun
+													id="clicker"
+													key="/clicker"
+													header="Clicker"
+													desc="Klikaj papieża"
+													img="/media/clicker_256.png"
+												/>
 
-											<SubFun
-												id="place"
-												key="/place"
-												header="Place"
-												desc="Stawiaj pojedyncze pixele, aby stworzyć wspólny obraz"
-												img="/media/pixel_pap.png"
-											/>
-										</Fun>
-									</Page>
-								</Route>
-							</Switch>
+												<SubFun
+													id="place"
+													key="/place"
+													header="Place"
+													desc="Stawiaj pojedyncze pixele, aby stworzyć wspólny obraz"
+													img="/media/pixel_pap.png"
+												/>
+											</Fun>
+										</Page>
+									}
+								/>
+							</Routes>
 
 							<Page id="home">
 								<Home count={count} invisible={invisible} sync={sync} />

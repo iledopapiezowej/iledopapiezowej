@@ -28,6 +28,8 @@ jobs:
 
       - name: Build
         run: yarn run build
+        env:
+          REACT_APP_GITHUB_SHA: ${{ github.sha }}
 
       - name: Deploy to Odin
         uses: easingthemes/ssh-deploy@main

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { memo, useContext, useEffect, useRef, useState } from 'react'
 
 import SocketContext from '../../contexts/Socket.ctx'
 
@@ -17,7 +17,7 @@ type chatProps = {
 	messageLimit?: number
 }
 
-function Message({
+const Message = memo(function Message({
 	mid,
 	time: timestamp,
 	nick = 'local',
@@ -43,12 +43,12 @@ function Message({
 			</span>
 		</div>
 	)
-}
+})
 
 var newMessage = false,
 	scrollBefore = 0
 
-function Chat({ show = true, messageLimit = 300 }: chatProps) {
+function Chat({ show = true, messageLimit = 40 }: chatProps) {
 	const socket = useContext(SocketContext)
 
 	const [messages, setMessages] = useState(socket.latest),
