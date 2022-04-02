@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import ga from 'react-ga'
+import ga from 'react-ga4'
 
 import Socket, { sync } from './Socket'
 

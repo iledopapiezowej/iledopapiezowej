@@ -29,7 +29,7 @@ function Nav({ links }: navProps) {
 			if (pathname === '/' || !title) document.title = suffix
 			else document.title = `${title} | ${suffix}`
 
-			ga.pageview(pathname)
+			ga.send({ hitType: 'pageview', page: pathname })
 		},
 		[location] // eslint-disable-line
 	)
