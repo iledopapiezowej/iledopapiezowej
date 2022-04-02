@@ -79,6 +79,7 @@ function Home({ sync, count, invisible }: HomeProps) {
 				doDisplay={settings.display}
 				target={[21, 37, 0, 0]}
 				onEventStart={(elapsed: number) => {
+					console.log(elapsed)
 					eventStart(elapsed)
 				}}
 				onEventEnd={() => {

@@ -28,20 +28,10 @@ function Player({
 		[volume, setVolume] = useState(4),
 		[audio] = useState(new Audio(url))
 
-	audio.onpause = () => pause()
-
-	function play() {
-		setPlaying(true)
-		audio.play()
-	}
-
-	function pause() {
-		setPlaying(false)
-		audio.pause()
-	}
+	// audio.onpause = () => setPlaying(false)
 
 	function toggle() {
-		playing ? pause() : play()
+		playing ? setPlaying(false) : setPlaying(true)
 	}
 
 	function bumpVolume() {
@@ -52,14 +42,19 @@ function Player({
 	}
 
 	useEffect(() => {
+		console.log(doMusic, event)
 		if (doMusic)
 			if (event) {
 				audio.currentTime = elapsed
-				return play()
+				if (elapsed == 0) return setPlaying(true)
 			}
 
-		return pause()
-	}, [event, doMusic]) // eslint-disable-line
+		return setPlaying(false)
+	}, [event, doMusic, elapsed]) // eslint-disable-line
+
+	useEffect(() => {
+		playing ? audio.play() : audio.pause()
+	}, [playing])
 
 	let V
 	if (volume >= maxVolume) V = <VolumeFull />

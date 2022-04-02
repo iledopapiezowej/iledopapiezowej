@@ -13,9 +13,11 @@ type counterProps = {
 	onEventEnd?: () => void
 }
 
+const fullday = 24 * 60 * 60
+
 // TODO: move from global scope
 var reached = false,
-	remain = Infinity,
+	// remain = 30,
 	goal: number
 
 function Counter({
@@ -27,22 +29,23 @@ function Counter({
 	onEventEnd,
 }: counterProps) {
 	const [clock, setClock] = useState(''),
-		[display, setDisplay] = useState(''),
-		[interval] = useState(setInterval(() => tick(), 100))
+		[display, setDisplay] = useState('')
 
 	function tick() {
 		let { clock, display, remain } = calc()
 
-		setClock(clock)
-		setDisplay(display)
-
-		if (remain >= 24 * 60 * 60 - 60 && !reached) {
-			reached = true
-			on()
+		if (remain >= fullday - 60) {
+			if (!reached) {
+				reached = true
+				onEventStart && onEventStart(fullday - remain - 1)
+			}
 		} else if (reached) {
 			reached = false
-			off()
+			onEventEnd && onEventEnd()
 		}
+
+		setClock(clock)
+		setDisplay(!reached ? display : 60 - (fullday - remain) + '')
 	}
 
 	function calc() {
@@ -50,10 +53,10 @@ function Counter({
 		var now = new Date().getTime() - sync.offset
 
 		// if passed, set to tomorrow
-		if (now > goal) goal += 23 * 60 * 60 * 1e3
+		if (now > goal) goal += fullday * 1e3
 
 		// calc remaining seconds
-		let remain: number = Math.floor((goal - now) / 1000)
+		let remain = Math.floor((goal - now) / 1000)
 
 		var h = Math.floor((remain / 60 / 60) % 60),
 			m = Math.floor((remain / 60) % 60),
@@ -70,19 +73,14 @@ function Counter({
 		}
 	}
 
-	function on() {
-		onEventStart && onEventStart(60 - (remain - 864e2 - 61))
-	}
-
-	function off() {
-		onEventEnd && onEventEnd()
-	}
-
 	useEffect(() => {
 		goal = new Date().setHours(...target)
+		// goal = new Date(Date.now() + 3e3).getTime()
+
+		let interval = setInterval(() => tick(), 100)
 
 		return () => clearInterval(interval)
-	}, [target, interval])
+	}, [])
 
 	return (
 		<div
