@@ -148,20 +148,20 @@ class Socket {
 			}
 		}
 
-		this.ws.onclose = (e) => {
-			console.info(`Socket disconnected`, e.code, e.reason)
+		this.ws.onclose = ({ code, reason }) => {
+			console.info(`Socket disconnected`, code, reason)
 
 			this.triggerEvent('onSocketDisconnect', this.ws.readyState)
 			this.triggerEvent('onChatReceive', {
 				nick: 'local',
 				role: 'root',
-				content: 'Rozłączono ❌',
+				content: `Rozłączono ❌ ${reason}`,
 			})
 
 			this.captcha = null
 			this.sync.ping = -1
 
-			this.reopen()
+			if (code !== 4003) this.reopen()
 		}
 
 		this.ws.onmessage = (e) => {
@@ -331,7 +331,7 @@ class Socket {
 		if (this.subscribed[type] === 1) {
 			this.send({
 				type,
-				unsubscribe: true,
+				subscribe: false,
 			})
 		}
 		this.subscribed[type]
