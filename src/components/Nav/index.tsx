@@ -41,7 +41,6 @@ function Nav({ links }: navProps) {
 					return (
 						<NavLink
 							className="link"
-							exact={link.to === '/'}
 							key={link.to}
 							to={link.to}
 							onClick={() => {
