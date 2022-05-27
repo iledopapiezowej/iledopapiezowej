@@ -1,0 +1,19 @@
+<body>
+	Logowanie...
+	<br>
+	Jeżeli to okno nie zamknie się automatycznie, spróbuj ponownie.
+</body>
+
+<script>
+	try {
+		const params = new URLSearchParams(document.location.search)
+
+		localStorage.code = JSON.stringify({
+			code: params.get('code'),
+			state: params.get('state')
+		})
+		document.write(localStorage.code)
+	} catch (err) {
+		document.write(err)
+	}
+</script>
