@@ -56,7 +56,7 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: build
-          path: $FQDN/
+          path: ${{ env.FQDN }}/
 
       - name: Copy via ssh
         uses: appleboy/scp-action@master
@@ -65,7 +65,7 @@ jobs:
           port: 2280
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          source: '$FQDN/'
+          source: '${{ env.FQDN }}/'
           target: '~/builds/'
 
       - name: Run ansible
@@ -75,7 +75,7 @@ jobs:
           port: 2280
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          script: ~/publish-build.sh $FQDN
+          script: ~/publish-build.sh ${{ env.FQDN }}
 
       - name: Purge Cloudflare cache
         uses: jakejarvis/cloudflare-purge-action@master
