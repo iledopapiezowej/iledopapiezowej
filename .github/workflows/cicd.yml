@@ -1,0 +1,84 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [master]
+
+  workflow_dispatch:
+
+env:
+  FQDN: iledopapiezowej.pl
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Create .env
+        run: |
+          cat <<EOF >.env
+            REACT_APP_WS_SERVER=wss://iledopapiezowej.pl/ws/
+            REACT_APP_DOMAIN=iledopapiezowej.pl
+            REACT_APP_NAME=iledopapiezowej
+            REACT_APP_CAPTCHA_KEY=6LfdNtIaAAAAAMY6rU7Q9tMlJtlz8k49ke5rUOaU
+            REACT_APP_ID_GA="UA-150749288-2"
+          EOF
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: build
+          path: build/
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: build
+          path: $FQDN/
+
+      - name: Copy via ssh
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: 2280
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          source: '$FQDN/'
+          target: '~/builds/'
+
+      - name: Run ansible
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          port: 2280
+          username: ${{ secrets.DEPLOY_USERNAME }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: ~/publish-build.sh $FQDN
+
+      - name: Purge Cloudflare cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CF_ZONE_ILEDOPAPIEZOWEJ }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CF_TOKEN_PURGE }}
