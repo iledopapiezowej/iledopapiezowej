@@ -46,6 +46,11 @@ function Home({ sync, count, invisible }: HomeProps) {
 	const [event, setEvent] = useState(false),
 		[elapsed, setElapsed] = useState(0)
 
+	const tagname =
+		process.env.REACT_APP_GITHUB_SHA ?? process.env.NODE_ENV === 'production'
+			? 'release'
+			: 'dev'
+
 	function eventStart(late: number) {
 		setEvent(true)
 		setElapsed(late)
@@ -104,12 +109,7 @@ function Home({ sync, count, invisible }: HomeProps) {
 
 			<div className="clear"></div>
 
-			<span className="copyright">
-				iledopapiezowej © 2020 #
-				{process.env.NODE_ENV === 'production'
-					? (process.env.REACT_APP_GITHUB_SHA ?? '__pro__').slice(0, 7)
-					: '__dev__'}
-			</span>
+			<span className="copyright">iledopapiezowej © 2020 #{tagname}</span>
 		</div>
 	)
 }
