@@ -47,9 +47,8 @@ function Home({ sync, count, invisible }: HomeProps) {
 		[elapsed, setElapsed] = useState(0)
 
 	const tagname =
-		process.env.REACT_APP_GITHUB_SHA ?? process.env.NODE_ENV === 'production'
-			? 'release'
-			: 'dev'
+		process.env.REACT_APP_GITHUB_SHA?.slice(0, 7) ??
+		(process.env.NODE_ENV === 'production' ? 'release' : 'dev')
 
 	function eventStart(late: number) {
 		setEvent(true)

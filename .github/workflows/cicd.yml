@@ -32,7 +32,7 @@ jobs:
             REACT_APP_DOMAIN=iledopapiezowej.pl
             REACT_APP_NAME=iledopapiezowej
             REACT_APP_CAPTCHA_KEY=6LfdNtIaAAAAAMY6rU7Q9tMlJtlz8k49ke5rUOaU
-            REACT_APP_ID_GA="309456289"
+            REACT_APP_ID_GA=309456289
           EOF
 
       - name: Install dependencies
@@ -68,7 +68,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
           source: '${{ env.FQDN }}/'
-          target: '~/builds/'
+          target: '~/www/'
 
       - name: Run ansible
         uses: appleboy/ssh-action@master
@@ -77,7 +77,7 @@ jobs:
           port: 2280
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          script: ~/play.sh deploy/build ${{ env.FQDN }}
+          script: ~/play.sh deploy/build -e DOMAIN=${{ env.FQDN }}
 
       - name: Purge Cloudflare cache
         uses: jakejarvis/cloudflare-purge-action@master
