@@ -52,6 +52,8 @@ class Socket {
 	version: string | null // server version
 	id: string | null // connection id
 
+	lastClose!: CloseEvent
+
 	constructor(listeners?: listeners) {
 		this.pending = []
 
@@ -150,6 +152,7 @@ class Socket {
 
 		this.ws.onclose = (e) => {
 			console.info(`Socket disconnected`, e.code, e.reason)
+			this.lastClose = e
 
 			this.triggerEvent('onSocketDisconnect', this.ws.readyState)
 			this.triggerEvent('onChatReceive', {
@@ -252,7 +255,7 @@ class Socket {
 						this.sync.end = performance.now()
 						this.sync.rtt = this.sync.end - this.sync.begin
 						this.sync.ping = this.sync.rtt / 2
-						this.sync.diff = Date.now() - chunk.time
+						this.sync.diff = Date.now() - new Date(chunk.time).getTime()
 						this.sync.offset = this.sync.diff - this.sync.ping
 
 						this.triggerEvent('onSync', this.sync)
@@ -277,14 +280,17 @@ class Socket {
 	reopen() {
 		if (this.ws.readyState === WebSocket.OPEN) return
 
+		if (this.lastClose.code === 4003) return console.info(`Banned from server`)
+
 		if (this.retries > 5) {
-			console.info(`Socket stopped, too many reconnect attempts`)
-		} else
-			setTimeout(() => {
-				console.info(`Socket attempting reconnect, #${this.retries + 1}`)
-				this.retries++
-				this.open()
-			}, 4e3)
+			return console.info(`Too many reconnect attempts`)
+		}
+
+		setTimeout(() => {
+			console.info(`Socket attempting reconnect, #${this.retries + 1}`)
+			this.retries++
+			this.open()
+		}, 4e3)
 	}
 
 	send(object: outgoingPayload) {
@@ -294,7 +300,7 @@ class Socket {
 		}
 
 		this.ws.send(JSON.stringify(object))
-		console.debug(`Sending`, object)
+		console.debug(`Sending [${object.type}]`, object)
 	}
 
 	getCaptcha(action: string): PromiseLike<string> {
