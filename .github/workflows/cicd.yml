@@ -77,7 +77,7 @@ jobs:
           port: 2280
           username: ${{ secrets.DEPLOY_USERNAME }}
           key: ${{ secrets.DEPLOY_KEY }}
-          script: ~/play.sh deply/build ${{ env.FQDN }}
+          script: ~/play.sh deploy/build ${{ env.FQDN }}
 
       - name: Purge Cloudflare cache
         uses: jakejarvis/cloudflare-purge-action@master
