@@ -97,8 +97,7 @@ class Socket {
 			console.info(`Socket connected`)
 
 			for (let m in this.modules) {
-				let { connect } = this.modules[m]
-				connect && connect(this)
+				this.modules[m].connect?.(this)
 			}
 
 			for (let payload of this.pending) {
@@ -113,8 +112,7 @@ class Socket {
 			this.triggerEvent(EVENT.WS, 'disconnect', this.ws.readyState)
 
 			for (let m in this.modules) {
-				let { leave } = this.modules[m]
-				leave && leave(this)
+				this.modules[m].leave?.(this)
 			}
 
 			this.reopen()

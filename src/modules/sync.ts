@@ -12,7 +12,9 @@ export type syncData = {
 const sync: module = {
 	label: 'sync',
 
-	timings: {} as syncData,
+	timings: {
+		offset: 0,
+	} as syncData,
 
 	connect() {},
 
