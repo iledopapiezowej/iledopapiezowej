@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { sync } from '../../Socket'
+import { syncData } from '../../modules/sync'
 
 import './style.css'
 
@@ -8,7 +8,7 @@ type counterProps = {
 	doClock: boolean
 	doDisplay: boolean
 	target: [number, number, number, number]
-	sync: sync
+	sync: syncData
 	onEventStart?: (remains: number) => void
 	onEventEnd?: () => void
 }

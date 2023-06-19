@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import ga from 'react-ga'
 
-import Socket, { sync } from './Socket'
+import Socket, { EVENT } from './Socket'
+import { syncData } from './modules/sync'
+
+import GaContext from './contexts/Ga.ctx'
+import SettingsContext from './contexts/Settings.ctx'
+import SocketContext from './contexts/Socket.ctx'
 
 import Nav from './components/Nav'
 import Home from './components/Home/Home'
@@ -10,10 +15,6 @@ import Chat from './components/Chat/Chat'
 import Page from './components/Page/Page'
 import { Fun, Sub as SubFun } from './components/Fun'
 import { Settings, categories } from './components/Settings/Settings'
-
-import GaContext from './contexts/Ga.ctx'
-import SettingsContext from './contexts/Settings.ctx'
-import SocketContext from './contexts/Socket.ctx'
 
 const { REACT_APP_ID_GA } = process.env
 
@@ -56,33 +57,16 @@ var socket = new Socket()
 function Main() {
 	const [settings, setSettings] = useState(defSettings),
 		[count, setCount] = useState(0),
-		[invisible, setInvisible] = useState(0),
-		[sync, setSync] = useState(socket.sync)
+		[sync, setSync] = useState(socket.modules.sync.timings)
 
 	function updateSettings(id: string, value: any) {
 		setSettings((prevSettings) => ({ ...prevSettings, [id]: value }))
 		localStorage[id] = JSON.stringify(value)
 	}
 
-	socket.addListener('onCount', ({ count, invisible }) => {
-		setCount(count)
-		setInvisible(invisible)
-	})
+	socket.addListener(EVENT.RECEIVE, 'count', ({ count }) => setCount(count))
 
-	socket.addListener('onSync', (data: sync) => {
-		setSync(data)
-
-		// ga.timing({
-		// 	category: 'Socket',
-		// 	variable: 'ping',
-		// 	value: data.ping,
-		// })
-		// ga.timing({
-		// 	category: 'Socket',
-		// 	variable: 'offset',
-		// 	value: data.offset,
-		// })
-	})
+	socket.addListener(EVENT.MODULE, 'synced', (data: syncData) => setSync(data))
 
 	return (
 		<SettingsContext.Provider value={{ settings, updateSettings }}>
@@ -137,7 +121,7 @@ function Main() {
 							</Switch>
 
 							<Page id="home">
-								<Home count={count} invisible={invisible} sync={sync} />
+								<Home count={count} sync={sync} />
 							</Page>
 						</div>
 					</Router>

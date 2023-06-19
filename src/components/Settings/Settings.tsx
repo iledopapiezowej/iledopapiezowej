@@ -1,12 +1,12 @@
 import { useContext, useState } from 'react'
 
-import { Label, LabelLink, Field, Toggle } from './Labels'
-
+import socketContext from '../../contexts/Socket.ctx'
 import SettingsContext from '../../contexts/Settings.ctx'
+
+import { Label, LabelLink, Field, Toggle } from './Labels'
 
 import './style.css'
 import './labels.css'
-import socketContext from '../../contexts/Socket.ctx'
 
 export type labelType = {
 	id: string
@@ -294,9 +294,12 @@ function Settings() {
 			(label) =>
 				(label.desc =
 					{
-						status: socket.sync.ping > 0 ? 'Połączono ✅' : 'Rozłączono ❌',
-						ping: `${Math.floor(socket.sync.ping)}ms`,
-						offset: `${Math.floor(socket.sync.offset)}ms`,
+						status:
+							socket.modules.sync.timings.ping > 0
+								? 'Połączono ✅'
+								: 'Rozłączono ❌',
+						ping: `${Math.floor(socket.modules.sync.timings.ping)}ms`,
+						offset: `${Math.floor(socket.modules.sync.timings.offset)}ms`,
 					}[label.id] ?? '')
 		)
 

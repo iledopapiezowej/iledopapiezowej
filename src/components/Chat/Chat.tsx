@@ -1,12 +1,12 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 
+import { EVENT } from '../../Socket'
+import { messageChunk } from '../../modules/chat'
+
 import SocketContext from '../../contexts/Socket.ctx'
 
 import { ReactComponent as Send } from './send.svg'
 import { ReactComponent as Down } from './down.svg'
-
-import { messageChunk } from '../../Socket'
-
 import './index.css'
 import './roles.css'
 
@@ -51,7 +51,7 @@ var newMessage = false,
 function Chat({ show = true, messageLimit = 300 }: chatProps) {
 	const socket = useContext(SocketContext)
 
-	const [messages, setMessages] = useState(socket.latest),
+	const [messages, setMessages] = useState(socket.modules.chat.messages),
 		[autoscroll, setAutoscroll] = useState(true)
 
 	const list = useRef<HTMLDivElement>(null),
@@ -84,8 +84,8 @@ function Chat({ show = true, messageLimit = 300 }: chatProps) {
 	}
 
 	useEffect(() => {
-		let listener = socket.addListener('onChatReceive', () => {
-			setMessages(socket.latest.slice(-messageLimit))
+		let listener = socket.addListener(EVENT.MODULE, 'chat-message', () => {
+			setMessages(socket.modules.chat.messages.slice(-messageLimit))
 
 			newMessage = true
 			scroll()
@@ -95,7 +95,7 @@ function Chat({ show = true, messageLimit = 300 }: chatProps) {
 
 		return () => {
 			socket.unsubscribe('chat')
-			socket.removeListener('onChatReceive', listener)
+			socket.removeListener(EVENT.MODULE, 'chat-message', listener)
 		}
 	}, []) // eslint-disable-line
 
@@ -131,7 +131,7 @@ function Chat({ show = true, messageLimit = 300 }: chatProps) {
 				{messages.map((message: messageChunk) => (
 					<Message
 						key={message.mid}
-						self={message.uid === socket.id}
+						self={message.uid === socket.modules.chat.id}
 						{...message}
 					/>
 				))}
