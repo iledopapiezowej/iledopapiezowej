@@ -3,6 +3,12 @@ name: CI/CD
 on:
   push:
     branches: [master]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'tsconfig.json'
 
   workflow_dispatch:
 
@@ -28,7 +34,7 @@ jobs:
       - name: Create .env
         run: |
           cat <<EOF >.env
-            REACT_APP_WS_SERVER=wss://iledopapiezowej.pl/ws/
+            REACT_APP_WS_SERVER=wss://api.iledopapiezowej.pl
             REACT_APP_DOMAIN=iledopapiezowej.pl
             REACT_APP_NAME=iledopapiezowej
             REACT_APP_CAPTCHA_KEY=6LfdNtIaAAAAAMY6rU7Q9tMlJtlz8k49ke5rUOaU
