@@ -1,31 +1,10 @@
-import pkg from '../package.json'
+import captcha from './modules/captcha'
+import chat from './modules/chat'
+import sync from './modules/sync'
 
-const { REACT_APP_CAPTCHA_KEY, REACT_APP_WS_SERVER } = process.env
+const { REACT_APP_WS_SERVER } = process.env
 
-export type listener = (chunk: any) => void
-
-export type listeners = {
-	[key: string]: listener[]
-}
-
-export type sync = {
-	begin: number
-	end: number
-	rtt: number
-	ping: number
-	diff: number // time difference
-	offset: number // corrected time difference
-}
-
-export type messageChunk = {
-	nick: string
-	role: string
-	uid?: string
-	content: string
-	time: string
-	type: string
-	mid: string
-}
+type listener = (chunk: any) => void
 
 export interface outgoingPayload {
 	type: string
@@ -39,79 +18,74 @@ export interface incomingPayload {
 	[key: string]: any
 }
 
+export type module = {
+	label: string
+	connect?: (socket: Socket) => any
+	leave?: (socket: Socket) => any
+	send?: (socket: Socket, payload: any) => any
+	receive: (socket: Socket, payload: incomingPayload) => any
+
+	[name: string]: any
+}
+
+type modules = { [label: string]: module }
+
+export enum EVENT {
+	WS,
+	RECEIVE,
+	MODULE,
+}
+
+const socketModules = [captcha, chat, sync]
+
 class Socket {
 	ws!: WebSocket
-	pending: outgoingPayload[]
-	subscribed: { [keys: string]: number }
-	sync: sync
-	retries: number // reconnect attempts
-	events: listeners
-
-	latest: messageChunk[] // older chat messages
-	captcha: string | null // captcha token
-	version: string | null // server version
-	id: string | null // connection id
 
 	lastClose!: CloseEvent
+	retries: number // reconnect attempts
+	pending: outgoingPayload[]
 
-	constructor(listeners?: listeners) {
+	subscribed: { [module: string]: number }
+	events: { [event: string]: listener[] }
+
+	modules: modules
+
+	constructor() {
+		this.retries = 0
 		this.pending = []
 
 		this.subscribed = {
 			chat: 0,
 		}
-
-		this.sync = {
-			begin: 0,
-			end: 0,
-			rtt: 0,
-			ping: 0,
-			diff: 0,
-			offset: 0,
-		}
-		this.retries = 0
-
-		this.captcha = null
-		this.version = null
-		this.id = null
-
 		this.events = {}
 
-		for (let name in listeners)
-			for (let listener of listeners[name]) this.addListener(name, listener)
-
-		this.latest = []
-		this.addListener('onChatReceive', (chunk: messageChunk) => {
-			// skip messages already cached
-			// TODO: move to receive-latest-on-connect event
-			if (this.latest.find((e) => e.mid === chunk.mid)) return
-
-			// ensure meta properties exist
-			chunk.mid || (chunk.mid = Math.random().toString(36).slice(2, 9))
-			chunk.time || (chunk.time = new Date().toISOString())
-
-			this.latest.push(chunk)
-			if (this.latest.length > 100) this.latest.unshift()
-		})
+		this.modules = socketModules.reduce((mods: modules, mod: module) => {
+			mods[mod.label] = mod
+			return mods
+		}, {})
 
 		this.open()
 	}
 
-	addListener(name: string, callback: listener): number {
-		if (!Array.isArray(this.events[name])) this.events[name] = []
+	addListener(type: EVENT, name: string, callback: listener): number {
+		const id = type + name
 
-		this.events[name].push(callback)
+		if (!Array.isArray(this.events[id])) this.events[id] = []
 
-		return this.events[name].length - 1
+		this.events[id].push(callback)
+
+		return this.events[id].length - 1
 	}
 
-	removeListener(name: string, i: number) {
-		this.events[name].splice(i, 1)
+	removeListener(type: EVENT, name: string, i: number) {
+		this.events[type + name].splice(i, 1)
 	}
 
-	private triggerEvent(name: string, payload: any) {
-		if (typeof this.events[name] !== 'undefined')
-			for (let callback of this.events[name]) {
+	triggerEvent(type: EVENT, name: string, payload: any) {
+		const id = type + name
+
+		if (typeof this.events[id] !== 'undefined')
+			for (let callback of this.events[id]) {
 				callback(payload)
 			}
 	}
@@ -122,31 +96,13 @@ class Socket {
 		this.ws.onopen = () => {
 			console.info(`Socket connected`)
 
+			for (let m in this.modules) {
+				let { connect } = this.modules[m]
+				connect && connect(this)
+			}
+
 			for (let payload of this.pending) {
 				this.send(payload)
-			}
-
-			if (this.retries > 0) {
-				this.retries = 0
-				this.triggerEvent('onChatReceive', {
-					nick: 'local',
-					role: 'root',
-					content: 'Połączono ✔️',
-				})
-			}
-
-			this.visibility(window.document.visibilityState === 'visible')
-
-			// re-set nick
-			if (localStorage['nick']) {
-				if (localStorage['nick'] !== 'undefined')
-					this.triggerEvent('onChatSend', `/nick ${localStorage['nick']}`)
-			}
-
-			// re-login
-			if (localStorage['login']) {
-				if (localStorage['login'] !== 'undefined undefined')
-					this.triggerEvent('onChatSend', `/login ${localStorage['login']}`)
 			}
 		}
 
@@ -154,15 +110,12 @@ class Socket {
 			console.info(`Socket disconnected`, e.code, e.reason)
 			this.lastClose = e
 
-			this.triggerEvent('onSocketDisconnect', this.ws.readyState)
-			this.triggerEvent('onChatReceive', {
-				nick: 'local',
-				role: 'root',
-				content: 'Rozłączono ❌',
-			})
+			this.triggerEvent(EVENT.WS, 'disconnect', this.ws.readyState)
 
-			this.captcha = null
-			this.sync.ping = -1
+			for (let m in this.modules) {
+				let { leave } = this.modules[m]
+				leave && leave(this)
+			}
 
 			this.reopen()
 		}
@@ -180,99 +133,9 @@ class Socket {
 			)
 
 			for (let chunk of data) {
-				let { type, flag } = chunk
+				this.triggerEvent(EVENT.RECEIVE, chunk.type, chunk)
 
-				// receive server version
-				if (type === 'info') {
-					this.version = chunk.version
-					this.id = chunk.id
-
-					// TODO: make sense of this
-
-					let isSupported = true
-
-					// supports = chunk.supports.split('.'),
-					// version = pkg.version.split('.'),
-
-					// for (let i in supports) {
-					// 	if (supports[i] > version[i]) {
-					// 		isSupported = false
-					// 		break
-					// 	}
-					// 	if (supports[i] < version[i]) {
-					// 		isSupported = true
-					// 		break
-					// 	}
-					// }
-
-					console.info(
-						`id: ${chunk.id}, Client: ${pkg.version}, Server: ${chunk.version}, Supports: ${chunk.supports} (${isSupported})`
-					)
-				}
-
-				// viewcount update
-				if (type === 'count') {
-					this.triggerEvent('onCount', {
-						count: chunk.count,
-						invisible: chunk.invisible,
-					})
-				}
-
-				// chat message
-				if (type === 'chat') {
-					if (flag === 'messages')
-						// older messages
-						for (let message of chunk.messages) {
-							this.triggerEvent('onChatReceive', message)
-						}
-					else this.triggerEvent('onChatReceive', chunk) // regular message
-				}
-
-				// server requested captcha
-				if (type === 'captcha') {
-					this.getCaptcha(chunk.action ?? 'general').then((token) => {
-						this.send({
-							type: 'captcha',
-							token,
-						})
-					})
-				}
-
-				// time synchronisation
-				if (type === 'sync') {
-					// init
-					if (flag === 'begin') {
-						this.sync.begin = performance.now()
-						this.send({
-							type: 'sync',
-							flag: 'received',
-							heartbeat: chunk.heartbeat ?? false,
-						})
-					}
-
-					// calculate
-					if (flag === 'end') {
-						this.sync.end = performance.now()
-						this.sync.rtt = this.sync.end - this.sync.begin
-						this.sync.ping = this.sync.rtt / 2
-						this.sync.diff = Date.now() - new Date(chunk.time).getTime()
-						this.sync.offset = this.sync.diff - this.sync.ping
-
-						this.triggerEvent('onSync', this.sync)
-
-						console.info(
-							`Time synced${
-								chunk.heartbeat ? ' ❤️' : ''
-							}, offset: ${this.sync.offset.toFixed(
-								1
-							)}ms, ping: ${this.sync.ping.toFixed(1)}`
-						)
-					}
-				}
-
-				if (type === 'clicker') {
-					this.triggerEvent('onClickerReceive', chunk)
-				}
+				this.modules[chunk.type]?.receive(this, chunk)
 			}
 		}
 	}
@@ -282,9 +145,7 @@ class Socket {
 
 		if (this.lastClose.code === 4003) return console.info(`Banned from server`)
 
-		if (this.retries > 5) {
-			return console.info(`Too many reconnect attempts`)
-		}
+		if (this.retries > 5) return console.info(`Too many reconnect attempts`)
 
 		setTimeout(() => {
 			console.info(`Socket attempting reconnect, #${this.retries + 1}`)
@@ -303,43 +164,17 @@ class Socket {
 		console.debug(`Sending [${object.type}]`, object)
 	}
 
-	getCaptcha(action: string): PromiseLike<string> {
-		console.info('Requesting captcha token')
-		return window.grecaptcha
-			.execute(REACT_APP_CAPTCHA_KEY, { action })
-			.then((token: string) => {
-				console.info('Received captcha')
-				this.captcha = token
-				return token
-			})
-	}
-
-	visibility(visible: boolean) {
-		this.send({
-			type: 'count',
-			visible: visible,
-		})
-	}
-
 	subscribe(type: string) {
-		if (this.subscribed[type] < 1) {
-			this.send({
-				type,
-				subscribe: true,
-			})
-		}
+		if (this.subscribed[type] < 1) this.send({ type, subscribe: true })
+
 		this.subscribed[type]
 			? this.subscribed[type]++
 			: (this.subscribed[type] = 1)
 	}
 
 	unsubscribe(type: string) {
-		if (this.subscribed[type] === 1) {
-			this.send({
-				type,
-				unsubscribe: true,
-			})
-		}
+		if (this.subscribed[type] === 1) this.send({ type, unsubscribe: true })
+
 		this.subscribed[type]
 			? this.subscribed[type]--
 			: (this.subscribed[type] = 0)

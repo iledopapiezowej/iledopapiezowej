@@ -1,19 +1,17 @@
 import { useContext, useState } from 'react'
 
+import { syncData } from '../../modules/sync'
+
+import GaContext from '../../contexts/Ga.ctx'
+import SettingsContext from '../../contexts/Settings.ctx'
+
 import Counter from '../Counter/Counter'
 import Eyes from '../Eyes/Eyes'
 import Player from '../Player/Player'
 import Chat from '../Chat/Chat'
 import Promo from '../Promo/Promo'
 
-import GaContext from '../../contexts/Ga.ctx'
-import SettingsContext from '../../contexts/Settings.ctx'
-
-import { sync } from '../../Socket'
-
 import './style.css'
-
-// fetch and update promo properties
 
 var promo: {
 	id: number
@@ -26,7 +24,7 @@ var promo: {
 
 fetch('/promo.json')
 	.then((data) => data.json())
-	.catch((err) => {
+	.catch(() => {
 		return { hidden: true }
 	})
 	.then((json) => {
@@ -34,12 +32,11 @@ fetch('/promo.json')
 	})
 
 type HomeProps = {
-	sync: sync
+	sync: syncData
 	count: number
-	invisible: number
 }
 
-function Home({ sync, count, invisible }: HomeProps) {
+function Home({ sync, count }: HomeProps) {
 	let ga = useContext(GaContext),
 		{ settings } = useContext(SettingsContext)
 
@@ -98,7 +95,7 @@ function Home({ sync, count, invisible }: HomeProps) {
 				url="/media/barka.ogg"
 			/>
 
-			<Eyes count={count} invisible={invisible} show={settings.eyes} />
+			<Eyes count={count} show={settings.eyes} />
 
 			{settings.chat && <Chat show={settings.chat} />}
 
