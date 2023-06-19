@@ -16,7 +16,7 @@ const sync: module = {
 
 	connect() {},
 
-	leave(socket) {
+	leave() {
 		this.timings.ping = -1
 	},
 
